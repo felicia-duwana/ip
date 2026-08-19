@@ -1,6 +1,6 @@
 /**
  * Represents one task and whether it has been completed.
- * Concrete task types provide their own display format.
+ * Subclasses add their task type and any date or time details.
  */
 public abstract class Task {
     /** The text that describes what needs to be done. */
@@ -52,10 +52,12 @@ public abstract class Task {
     }
 
     /**
-     * Returns this task in the format displayed to the user.
+     * Returns the shared status and description portion of a task's display format.
      *
-     * @return a formatted task description
+     * @return the formatted status and description
      */
     @Override
-    public abstract String toString();
+    public String toString() {
+        return "[" + getStatusIcon() + "] " + description;
+    }
 }
