@@ -1,12 +1,11 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
  * Starts Koko's command-line interface.
  */
 public class Koko {
-    /** Maximum number of tasks that can be kept during one program run. */
-    private static final int MAX_TASKS = 100;
-
     /**
      * Displays the welcome message, stores entered tasks, lists them on request, and stops on {@code bye}.
      *
@@ -21,8 +20,7 @@ public class Koko {
         System.out.println(banner);
         System.out.println("What can I do for you?");
 
-        Task[] tasks = new Task[MAX_TASKS];
-        int numberOfTasks = 0;
+        List<Task> tasks = new ArrayList<>();
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine().trim();
@@ -34,19 +32,19 @@ public class Koko {
                 }
 
                 if (command.equals("list")) {
-                    printTasks(tasks, numberOfTasks);
+                    printTasks(tasks);
                 } else if (command.equals("mark") || command.startsWith("mark ")) {
-                    markTask(command, tasks, numberOfTasks);
+                    markTask(command, tasks);
                 } else if (command.equals("unmark") || command.startsWith("unmark ")) {
-                    unmarkTask(command, tasks, numberOfTasks);
+                    unmarkTask(command, tasks);
                 } else if (command.equals("delete") || command.startsWith("delete ")) {
-                    numberOfTasks = deleteTask(command, tasks, numberOfTasks);
+                    deleteTask(command, tasks);
                 } else if (command.equals("todo") || command.startsWith("todo ")) {
-                    numberOfTasks = addTodo(command, tasks, numberOfTasks);
+                    addTodo(command, tasks);
                 } else if (command.equals("deadline") || command.startsWith("deadline ")) {
-                    numberOfTasks = addDeadline(command, tasks, numberOfTasks);
+                    addDeadline(command, tasks);
                 } else if (command.equals("event") || command.startsWith("event ")) {
-                    numberOfTasks = addEvent(command, tasks, numberOfTasks);
+                    addEvent(command, tasks);
                 } else {
                     throw new KokoException("I don't recognise that command. "
                             + "Try todo, deadline, event, list, mark, unmark, or delete.");
@@ -60,14 +58,13 @@ public class Koko {
     /**
      * Prints all currently stored tasks with user-friendly numbering and their completion status.
      *
-     * @param tasks the array containing the tasks
-     * @param numberOfTasks how many positions in {@code tasks} contain a task
+     * @param tasks the list containing the tasks
      */
-    private static void printTasks(Task[] tasks, int numberOfTasks) {
+    private static void printTasks(List<Task> tasks) {
         printDivider();
         System.out.println("Here are the tasks in your list:");
-        for (int index = 0; index < numberOfTasks; index++) {
-            System.out.println((index + 1) + "." + tasks[index]);
+        for (int index = 0; index < tasks.size(); index++) {
+            System.out.println((index + 1) + "." + tasks.get(index));
         }
         printDivider();
     }
@@ -76,16 +73,15 @@ public class Koko {
      * Marks the task identified by a one-based task number as done.
      *
      * @param command the user's {@code mark} command
-     * @param tasks the array containing the tasks
-     * @param numberOfTasks how many positions in {@code tasks} contain a task
+     * @param tasks the list containing the tasks
      * @throws KokoException if the command does not identify a stored task
      */
-    private static void markTask(String command, Task[] tasks, int numberOfTasks) throws KokoException {
-        int taskIndex = getTaskIndex(command, "mark", numberOfTasks);
-        tasks[taskIndex].markAsDone();
+    private static void markTask(String command, List<Task> tasks) throws KokoException {
+        int taskIndex = getTaskIndex(command, "mark", tasks.size());
+        tasks.get(taskIndex).markAsDone();
         printDivider();
         System.out.println("Nice! I've marked this task as done:");
-        System.out.println("  " + tasks[taskIndex]);
+        System.out.println("  " + tasks.get(taskIndex));
         printDivider();
     }
 
@@ -93,43 +89,33 @@ public class Koko {
      * Marks the task identified by a one-based task number as not done.
      *
      * @param command the user's {@code unmark} command
-     * @param tasks the array containing the tasks
-     * @param numberOfTasks how many positions in {@code tasks} contain a task
+     * @param tasks the list containing the tasks
      * @throws KokoException if the command does not identify a stored task
      */
-    private static void unmarkTask(String command, Task[] tasks, int numberOfTasks) throws KokoException {
-        int taskIndex = getTaskIndex(command, "unmark", numberOfTasks);
-        tasks[taskIndex].markAsNotDone();
+    private static void unmarkTask(String command, List<Task> tasks) throws KokoException {
+        int taskIndex = getTaskIndex(command, "unmark", tasks.size());
+        tasks.get(taskIndex).markAsNotDone();
         printDivider();
         System.out.println("OK, I've marked this task as not done yet:");
-        System.out.println("  " + tasks[taskIndex]);
+        System.out.println("  " + tasks.get(taskIndex));
         printDivider();
     }
 
     /**
-     * Removes the task identified by a one-based task number and closes the gap in the task list.
+     * Removes the task identified by a one-based task number from the task list.
      *
      * @param command the user's {@code delete} command
-     * @param tasks the array containing the tasks
-     * @param numberOfTasks how many positions in {@code tasks} contain a task
-     * @return the updated task count
+     * @param tasks the list containing the tasks
      * @throws KokoException if the command does not identify a stored task
      */
-    private static int deleteTask(String command, Task[] tasks, int numberOfTasks) throws KokoException {
-        int taskIndex = getTaskIndex(command, "delete", numberOfTasks);
-        Task removedTask = tasks[taskIndex];
-        for (int index = taskIndex; index < numberOfTasks - 1; index++) {
-            tasks[index] = tasks[index + 1];
-        }
-
-        int updatedNumberOfTasks = numberOfTasks - 1;
-        tasks[updatedNumberOfTasks] = null;
+    private static void deleteTask(String command, List<Task> tasks) throws KokoException {
+        int taskIndex = getTaskIndex(command, "delete", tasks.size());
+        Task removedTask = tasks.remove(taskIndex);
         printDivider();
         System.out.println("Noted. I've removed this task:");
         System.out.println("  " + removedTask);
-        System.out.println("Now you have " + updatedNumberOfTasks + " tasks in the list.");
+        System.out.println("Now you have " + tasks.size() + " tasks in the list.");
         printDivider();
-        return updatedNumberOfTasks;
     }
 
     /**
@@ -180,17 +166,15 @@ public class Koko {
      * Adds a to-do task from a {@code todo DESCRIPTION} command.
      *
      * @param command the user's command
-     * @param tasks the array containing the tasks
-     * @param numberOfTasks how many positions in {@code tasks} contain a task
-     * @return the updated task count
-     * @throws KokoException if the description is missing or there is no room for another task
+     * @param tasks the list containing the tasks
+     * @throws KokoException if the description is missing
      */
-    private static int addTodo(String command, Task[] tasks, int numberOfTasks) throws KokoException {
+    private static void addTodo(String command, List<Task> tasks) throws KokoException {
         String description = command.substring("todo".length()).trim();
         if (description.isEmpty()) {
             throw new KokoException("A to-do needs a description. Try: todo borrow book.");
         }
-        return addTask(new Todo(description), tasks, numberOfTasks);
+        addTask(new Todo(description), tasks);
     }
 
     /**
@@ -198,12 +182,10 @@ public class Koko {
      * Date and time text is deliberately kept as entered by the user.
      *
      * @param command the user's command
-     * @param tasks the array containing the tasks
-     * @param numberOfTasks how many positions in {@code tasks} contain a task
-     * @return the updated task count
-     * @throws KokoException if the description or due time is missing, or the list is full
+     * @param tasks the list containing the tasks
+     * @throws KokoException if the description or due time is missing
      */
-    private static int addDeadline(String command, Task[] tasks, int numberOfTasks) throws KokoException {
+    private static void addDeadline(String command, List<Task> tasks) throws KokoException {
         String details = command.substring("deadline".length()).trim();
         int byMarker = details.indexOf(" /by ");
         if (byMarker < 1 || byMarker + " /by ".length() >= details.length()) {
@@ -212,7 +194,7 @@ public class Koko {
         }
         String description = details.substring(0, byMarker).trim();
         String by = details.substring(byMarker + " /by ".length()).trim();
-        return addTask(new Deadline(description, by), tasks, numberOfTasks);
+        addTask(new Deadline(description, by), tasks);
     }
 
     /**
@@ -220,12 +202,10 @@ public class Koko {
      * Date and time text is deliberately kept as entered by the user.
      *
      * @param command the user's command
-     * @param tasks the array containing the tasks
-     * @param numberOfTasks how many positions in {@code tasks} contain a task
-     * @return the updated task count
-     * @throws KokoException if the description, start time, or end time is missing, or the list is full
+     * @param tasks the list containing the tasks
+     * @throws KokoException if the description, start time, or end time is missing
      */
-    private static int addEvent(String command, Task[] tasks, int numberOfTasks) throws KokoException {
+    private static void addEvent(String command, List<Task> tasks) throws KokoException {
         String details = command.substring("event".length()).trim();
         int fromMarker = details.indexOf(" /from ");
         int toMarker = details.indexOf(" /to ");
@@ -241,30 +221,21 @@ public class Koko {
             throw new KokoException("An event needs a description, /from time, and /to time. "
                     + "Try: event lecture /from Monday 2pm /to Monday 4pm.");
         }
-        return addTask(new Event(description, from, to), tasks, numberOfTasks);
+        addTask(new Event(description, from, to), tasks);
     }
 
     /**
-     * Stores a task when there is room and displays the standard confirmation.
+     * Stores a task and displays the standard confirmation.
      *
      * @param task the task to store
-     * @param tasks the array containing the tasks
-     * @param numberOfTasks how many positions in {@code tasks} contain a task
-     * @return the updated task count
-     * @throws KokoException if the task list has reached its maximum size
+     * @param tasks the list containing the tasks
      */
-    private static int addTask(Task task, Task[] tasks, int numberOfTasks) throws KokoException {
-        if (numberOfTasks >= MAX_TASKS) {
-            throw new KokoException("I can only store up to " + MAX_TASKS + " tasks.");
-        }
-
-        tasks[numberOfTasks] = task;
-        int updatedNumberOfTasks = numberOfTasks + 1;
+    private static void addTask(Task task, List<Task> tasks) {
+        tasks.add(task);
         printDivider();
         System.out.println("Got it. I've added this task:");
         System.out.println("  " + task);
-        System.out.println("Now you have " + updatedNumberOfTasks + " tasks in the list.");
+        System.out.println("Now you have " + tasks.size() + " tasks in the list.");
         printDivider();
-        return updatedNumberOfTasks;
     }
 }
