@@ -153,9 +153,11 @@ event gym /from 7pm /to
 mark potato
 mark 1
 unmark
+delete
 todo plan homework
 mark 2
 unmark 0
+delete 2
 something else
 bye
 ```
@@ -163,7 +165,7 @@ bye
 **Run:**
 
 ```sh
-printf 'todo\ndeadline write essay\nevent gym /from 7pm /to\nmark potato\nmark 1\nunmark\ntodo plan homework\nmark 2\nunmark 0\nsomething else\nbye\n' | java src/main/java/Koko.java 2>&1
+printf 'todo\ndeadline write essay\nevent gym /from 7pm /to\nmark potato\nmark 1\nunmark\ndelete\ntodo plan homework\nmark 2\nunmark 0\ndelete 2\nsomething else\nbye\n' | java src/main/java/Koko.java 2>&1
 ```
 
 **Expected output:**
@@ -195,6 +197,9 @@ ____________________________________________________________
 Oops! I need a task number to unmark. Try: unmark 2.
 ____________________________________________________________
 ____________________________________________________________
+Oops! I need a task number to delete. Try: delete 2.
+____________________________________________________________
+____________________________________________________________
 Got it. I've added this task:
   [T][ ] plan homework
 Now you have 1 tasks in the list.
@@ -206,7 +211,98 @@ ____________________________________________________________
 Oops! Choose a task number from 1 to 1.
 ____________________________________________________________
 ____________________________________________________________
-Oops! I don't recognise that command. Try todo, deadline, event, list, mark, or unmark.
+Oops! Choose a task number from 1 to 1.
+____________________________________________________________
+____________________________________________________________
+Oops! I don't recognise that command. Try todo, deadline, event, list, mark, unmark, or delete.
+____________________________________________________________
+Bye. Hope to see you again soon!
+```
+
+## Test case 5 — Delete a task
+
+**Aim:** Verify that deleting a task reports the removed task and renumbers the remaining list.
+
+**Console input:**
+
+```text
+todo read book
+deadline return book /by June 6th
+event project meeting /from Aug 6th 2pm /to 4pm
+todo join sports club
+todo borrow book
+mark 1
+mark 2
+mark 4
+delete 3
+list
+bye
+```
+
+**Run:**
+
+```sh
+printf 'todo read book\ndeadline return book /by June 6th\nevent project meeting /from Aug 6th 2pm /to 4pm\ntodo join sports club\ntodo borrow book\nmark 1\nmark 2\nmark 4\ndelete 3\nlist\nbye\n' | java src/main/java/Koko.java 2>&1
+```
+
+**Expected output:**
+
+```text
+ _  __     _          
+| |/ /___ | | _____   
+| ' // _ \| |/ / _ \  
+| . \ (_) |   < (_) | 
+|_|\_\___/|_|\_\___/  
+
+What can I do for you?
+____________________________________________________________
+Got it. I've added this task:
+  [T][ ] read book
+Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [D][ ] return book (by: June 6th)
+Now you have 2 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+Now you have 3 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [T][ ] join sports club
+Now you have 4 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [T][ ] borrow book
+Now you have 5 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Nice! I've marked this task as done:
+  [T][X] read book
+____________________________________________________________
+____________________________________________________________
+Nice! I've marked this task as done:
+  [D][X] return book (by: June 6th)
+____________________________________________________________
+____________________________________________________________
+Nice! I've marked this task as done:
+  [T][X] join sports club
+____________________________________________________________
+____________________________________________________________
+Noted. I've removed this task:
+  [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+Now you have 4 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Here are the tasks in your list:
+1.[T][X] read book
+2.[D][X] return book (by: June 6th)
+3.[T][X] join sports club
+4.[T][ ] borrow book
 ____________________________________________________________
 Bye. Hope to see you again soon!
 ```

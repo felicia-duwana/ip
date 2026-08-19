@@ -39,6 +39,8 @@ public class Koko {
                     markTask(command, tasks, numberOfTasks);
                 } else if (command.equals("unmark") || command.startsWith("unmark ")) {
                     unmarkTask(command, tasks, numberOfTasks);
+                } else if (command.equals("delete") || command.startsWith("delete ")) {
+                    numberOfTasks = deleteTask(command, tasks, numberOfTasks);
                 } else if (command.equals("todo") || command.startsWith("todo ")) {
                     numberOfTasks = addTodo(command, tasks, numberOfTasks);
                 } else if (command.equals("deadline") || command.startsWith("deadline ")) {
@@ -47,7 +49,7 @@ public class Koko {
                     numberOfTasks = addEvent(command, tasks, numberOfTasks);
                 } else {
                     throw new KokoException("I don't recognise that command. "
-                            + "Try todo, deadline, event, list, mark, or unmark.");
+                            + "Try todo, deadline, event, list, mark, unmark, or delete.");
                 }
             } catch (KokoException exception) {
                 printError(exception.getMessage());
@@ -105,9 +107,35 @@ public class Koko {
     }
 
     /**
-     * Converts the task number in a mark or unmark command into a valid zero-based array index.
+     * Removes the task identified by a one-based task number and closes the gap in the task list.
      *
-     * @param command the user's mark or unmark command
+     * @param command the user's {@code delete} command
+     * @param tasks the array containing the tasks
+     * @param numberOfTasks how many positions in {@code tasks} contain a task
+     * @return the updated task count
+     * @throws KokoException if the command does not identify a stored task
+     */
+    private static int deleteTask(String command, Task[] tasks, int numberOfTasks) throws KokoException {
+        int taskIndex = getTaskIndex(command, "delete", numberOfTasks);
+        Task removedTask = tasks[taskIndex];
+        for (int index = taskIndex; index < numberOfTasks - 1; index++) {
+            tasks[index] = tasks[index + 1];
+        }
+
+        int updatedNumberOfTasks = numberOfTasks - 1;
+        tasks[updatedNumberOfTasks] = null;
+        printDivider();
+        System.out.println("Noted. I've removed this task:");
+        System.out.println("  " + removedTask);
+        System.out.println("Now you have " + updatedNumberOfTasks + " tasks in the list.");
+        printDivider();
+        return updatedNumberOfTasks;
+    }
+
+    /**
+     * Converts the task number in a task-changing command into a valid zero-based array index.
+     *
+     * @param command the user's command that includes a task number
      * @param action the action named in the command
      * @param numberOfTasks how many tasks are currently stored
      * @return the zero-based index of the requested task
