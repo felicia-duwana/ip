@@ -37,6 +37,8 @@ public class Koko {
                 printTasks(tasks, completedTasks, numberOfTasks);
             } else if (command.equals("mark") || command.startsWith("mark ")) {
                 markTask(command, tasks, completedTasks, numberOfTasks);
+            } else if (command.equals("unmark") || command.startsWith("unmark ")) {
+                unmarkTask(command, tasks, completedTasks, numberOfTasks);
             } else if (numberOfTasks < MAX_TASKS) {
                 tasks[numberOfTasks] = command;
                 numberOfTasks++;
@@ -88,6 +90,34 @@ public class Koko {
             printDivider();
         } catch (NumberFormatException exception) {
             System.out.println("Please provide the number of the task to mark, for example: mark 2");
+        }
+    }
+
+    /**
+     * Marks the task identified by a one-based task number as not done.
+     *
+     * @param command the user's {@code unmark} command
+     * @param tasks the array containing the tasks
+     * @param completedTasks whether the corresponding task has been marked as done
+     * @param numberOfTasks how many positions in {@code tasks} contain a task
+     */
+    private static void unmarkTask(String command, String[] tasks, boolean[] completedTasks, int numberOfTasks) {
+        String taskNumberText = command.substring("unmark".length()).trim();
+        try {
+            int taskNumber = Integer.parseInt(taskNumberText);
+            int taskIndex = taskNumber - 1;
+            if (taskIndex < 0 || taskIndex >= numberOfTasks) {
+                System.out.println("Please provide a task number from 1 to " + numberOfTasks + ".");
+                return;
+            }
+
+            completedTasks[taskIndex] = false;
+            printDivider();
+            System.out.println("OK, I've marked this task as not done yet:");
+            System.out.println("  " + getStatus(false) + " " + tasks[taskIndex]);
+            printDivider();
+        } catch (NumberFormatException exception) {
+            System.out.println("Please provide the number of the task to unmark, for example: unmark 2");
         }
     }
 
