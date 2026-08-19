@@ -21,8 +21,7 @@ public class Koko {
         System.out.println(banner);
         System.out.println("What can I do for you?");
 
-        String[] tasks = new String[MAX_TASKS];
-        boolean[] completedTasks = new boolean[MAX_TASKS];
+        Task[] tasks = new Task[MAX_TASKS];
         int numberOfTasks = 0;
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
@@ -34,13 +33,13 @@ public class Koko {
             }
 
             if (command.equals("list")) {
-                printTasks(tasks, completedTasks, numberOfTasks);
+                printTasks(tasks, numberOfTasks);
             } else if (command.equals("mark") || command.startsWith("mark ")) {
-                markTask(command, tasks, completedTasks, numberOfTasks);
+                markTask(command, tasks, numberOfTasks);
             } else if (command.equals("unmark") || command.startsWith("unmark ")) {
-                unmarkTask(command, tasks, completedTasks, numberOfTasks);
+                unmarkTask(command, tasks, numberOfTasks);
             } else if (numberOfTasks < MAX_TASKS) {
-                tasks[numberOfTasks] = command;
+                tasks[numberOfTasks] = new Task(command);
                 numberOfTasks++;
                 System.out.println("added: " + command);
             } else {
@@ -53,14 +52,14 @@ public class Koko {
      * Prints all currently stored tasks with user-friendly numbering and their completion status.
      *
      * @param tasks the array containing the tasks
-     * @param completedTasks whether the corresponding task has been marked as done
      * @param numberOfTasks how many positions in {@code tasks} contain a task
      */
-    private static void printTasks(String[] tasks, boolean[] completedTasks, int numberOfTasks) {
+    private static void printTasks(Task[] tasks, int numberOfTasks) {
         printDivider();
         System.out.println("Here are the tasks in your list:");
         for (int index = 0; index < numberOfTasks; index++) {
-            System.out.println((index + 1) + "." + getStatus(completedTasks[index]) + " " + tasks[index]);
+            System.out.println((index + 1) + ".[" + tasks[index].getStatusIcon() + "] "
+                    + tasks[index].getDescription());
         }
         printDivider();
     }
@@ -70,10 +69,9 @@ public class Koko {
      *
      * @param command the user's {@code mark} command
      * @param tasks the array containing the tasks
-     * @param completedTasks whether the corresponding task has been marked as done
      * @param numberOfTasks how many positions in {@code tasks} contain a task
      */
-    private static void markTask(String command, String[] tasks, boolean[] completedTasks, int numberOfTasks) {
+    private static void markTask(String command, Task[] tasks, int numberOfTasks) {
         String taskNumberText = command.substring("mark".length()).trim();
         try {
             int taskNumber = Integer.parseInt(taskNumberText);
@@ -83,10 +81,11 @@ public class Koko {
                 return;
             }
 
-            completedTasks[taskIndex] = true;
+            tasks[taskIndex].markAsDone();
             printDivider();
             System.out.println("Nice! I've marked this task as done:");
-            System.out.println("  " + getStatus(true) + " " + tasks[taskIndex]);
+            System.out.println("  [" + tasks[taskIndex].getStatusIcon() + "] "
+                    + tasks[taskIndex].getDescription());
             printDivider();
         } catch (NumberFormatException exception) {
             System.out.println("Please provide the number of the task to mark, for example: mark 2");
@@ -98,10 +97,9 @@ public class Koko {
      *
      * @param command the user's {@code unmark} command
      * @param tasks the array containing the tasks
-     * @param completedTasks whether the corresponding task has been marked as done
      * @param numberOfTasks how many positions in {@code tasks} contain a task
      */
-    private static void unmarkTask(String command, String[] tasks, boolean[] completedTasks, int numberOfTasks) {
+    private static void unmarkTask(String command, Task[] tasks, int numberOfTasks) {
         String taskNumberText = command.substring("unmark".length()).trim();
         try {
             int taskNumber = Integer.parseInt(taskNumberText);
@@ -111,24 +109,15 @@ public class Koko {
                 return;
             }
 
-            completedTasks[taskIndex] = false;
+            tasks[taskIndex].markAsNotDone();
             printDivider();
             System.out.println("OK, I've marked this task as not done yet:");
-            System.out.println("  " + getStatus(false) + " " + tasks[taskIndex]);
+            System.out.println("  [" + tasks[taskIndex].getStatusIcon() + "] "
+                    + tasks[taskIndex].getDescription());
             printDivider();
         } catch (NumberFormatException exception) {
             System.out.println("Please provide the number of the task to unmark, for example: unmark 2");
         }
-    }
-
-    /**
-     * Returns the display marker for a task's completion state.
-     *
-     * @param isCompleted whether the task has been marked as done
-     * @return {@code [X]} for completed tasks or {@code [ ]} otherwise
-     */
-    private static String getStatus(boolean isCompleted) {
-        return isCompleted ? "[X]" : "[ ]";
     }
 
     /**
