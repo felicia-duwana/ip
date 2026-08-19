@@ -1,30 +1,59 @@
 # Koko User Guide
 
-// Update the title above to match the actual product name
+Koko is a command-line task manager. Tasks are kept while the program is running.
 
-// Product screenshot goes here
+## Adding to-dos
 
-// Product intro goes here
+Use `todo` for a task without a date or time.
+
+```
+todo borrow book
+```
+
+Koko adds it as `[T][ ] borrow book`.
 
 ## Adding deadlines
 
-// Describe the action and its outcome.
-
-// Give examples of usage
-
-Example: `keyword (optional arguments)`
-
-// A description of the expected outcome goes here
+Use `deadline` followed by the task description and `/by` followed by any due-date text. Koko stores the date text exactly as entered; it does not need to be a real date.
 
 ```
-expected output
+deadline return book /by Sunday
+deadline do homework /by no idea :-p
 ```
 
-## Feature ABC
+Koko displays a deadline with a `[D]` marker, for example: `[D][ ] return book (by: Sunday)`.
 
-// Feature details
+## Adding events
 
+Use `event` followed by the event description, `/from` and a start time, then `/to` and an end time. Koko keeps both time values as text.
 
-## Feature XYZ
+```
+event project meeting /from Mon 2pm /to 4pm
+```
 
-// Feature details
+Koko displays an event with an `[E]` marker, for example: `[E][ ] project meeting (from: Mon 2pm to: 4pm)`.
+
+## Listing tasks
+
+Use `list` to show every task. `[ ]` means not done, while `[X]` means done.
+
+```
+list
+```
+
+## Updating task status
+
+Use a task's number from the `list` output with `mark` or `unmark`.
+
+```
+mark 2
+unmark 2
+```
+
+## Exiting Koko
+
+Use `bye` to close the program.
+
+```
+bye
+```

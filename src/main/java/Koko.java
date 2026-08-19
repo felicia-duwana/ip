@@ -25,7 +25,7 @@ public class Koko {
         int numberOfTasks = 0;
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
-            String command = scanner.nextLine();
+            String command = scanner.nextLine().trim();
 
             if (command.equals("bye")) {
                 System.out.println("Bye. Hope to see you again soon!");
@@ -38,12 +38,14 @@ public class Koko {
                 markTask(command, tasks, numberOfTasks);
             } else if (command.equals("unmark") || command.startsWith("unmark ")) {
                 unmarkTask(command, tasks, numberOfTasks);
-            } else if (numberOfTasks < MAX_TASKS) {
-                tasks[numberOfTasks] = new Task(command);
-                numberOfTasks++;
-                System.out.println("added: " + command);
+            } else if (command.equals("todo") || command.startsWith("todo ")) {
+                numberOfTasks = addTodo(command, tasks, numberOfTasks);
+            } else if (command.equals("deadline") || command.startsWith("deadline ")) {
+                numberOfTasks = addDeadline(command, tasks, numberOfTasks);
+            } else if (command.equals("event") || command.startsWith("event ")) {
+                numberOfTasks = addEvent(command, tasks, numberOfTasks);
             } else {
-                System.out.println("Sorry, I can only store up to " + MAX_TASKS + " tasks.");
+                System.out.println("I don't understand that command. Try todo, deadline, event, list, mark, or unmark.");
             }
         }
     }
@@ -58,8 +60,7 @@ public class Koko {
         printDivider();
         System.out.println("Here are the tasks in your list:");
         for (int index = 0; index < numberOfTasks; index++) {
-            System.out.println((index + 1) + ".[" + tasks[index].getStatusIcon() + "] "
-                    + tasks[index].getDescription());
+            System.out.println((index + 1) + "." + tasks[index]);
         }
         printDivider();
     }
@@ -84,8 +85,7 @@ public class Koko {
             tasks[taskIndex].markAsDone();
             printDivider();
             System.out.println("Nice! I've marked this task as done:");
-            System.out.println("  [" + tasks[taskIndex].getStatusIcon() + "] "
-                    + tasks[taskIndex].getDescription());
+            System.out.println("  " + tasks[taskIndex]);
             printDivider();
         } catch (NumberFormatException exception) {
             System.out.println("Please provide the number of the task to mark, for example: mark 2");
@@ -112,8 +112,7 @@ public class Koko {
             tasks[taskIndex].markAsNotDone();
             printDivider();
             System.out.println("OK, I've marked this task as not done yet:");
-            System.out.println("  [" + tasks[taskIndex].getStatusIcon() + "] "
-                    + tasks[taskIndex].getDescription());
+            System.out.println("  " + tasks[taskIndex]);
             printDivider();
         } catch (NumberFormatException exception) {
             System.out.println("Please provide the number of the task to unmark, for example: unmark 2");
@@ -125,5 +124,95 @@ public class Koko {
      */
     private static void printDivider() {
         System.out.println("____________________________________________________________");
+    }
+
+    /**
+     * Adds a to-do task from a {@code todo DESCRIPTION} command.
+     *
+     * @param command the user's command
+     * @param tasks the array containing the tasks
+     * @param numberOfTasks how many positions in {@code tasks} contain a task
+     * @return the updated task count
+     */
+    private static int addTodo(String command, Task[] tasks, int numberOfTasks) {
+        String description = command.substring("todo".length()).trim();
+        if (description.isEmpty()) {
+            System.out.println("Please provide a description, for example: todo borrow book");
+            return numberOfTasks;
+        }
+        return addTask(new Todo(description), tasks, numberOfTasks);
+    }
+
+    /**
+     * Adds a deadline task from a {@code deadline DESCRIPTION /by TIME} command.
+     * Date and time text is deliberately kept as entered by the user.
+     *
+     * @param command the user's command
+     * @param tasks the array containing the tasks
+     * @param numberOfTasks how many positions in {@code tasks} contain a task
+     * @return the updated task count
+     */
+    private static int addDeadline(String command, Task[] tasks, int numberOfTasks) {
+        String details = command.substring("deadline".length()).trim();
+        int byMarker = details.indexOf(" /by ");
+        if (byMarker < 1 || byMarker + " /by ".length() >= details.length()) {
+            System.out.println("Please use: deadline DESCRIPTION /by DATE_OR_TIME");
+            return numberOfTasks;
+        }
+        String description = details.substring(0, byMarker).trim();
+        String by = details.substring(byMarker + " /by ".length()).trim();
+        return addTask(new Deadline(description, by), tasks, numberOfTasks);
+    }
+
+    /**
+     * Adds an event task from an {@code event DESCRIPTION /from START /to END} command.
+     * Date and time text is deliberately kept as entered by the user.
+     *
+     * @param command the user's command
+     * @param tasks the array containing the tasks
+     * @param numberOfTasks how many positions in {@code tasks} contain a task
+     * @return the updated task count
+     */
+    private static int addEvent(String command, Task[] tasks, int numberOfTasks) {
+        String details = command.substring("event".length()).trim();
+        int fromMarker = details.indexOf(" /from ");
+        int toMarker = details.indexOf(" /to ");
+        if (fromMarker < 1 || toMarker < fromMarker + " /from ".length()
+                || toMarker + " /to ".length() >= details.length()) {
+            System.out.println("Please use: event DESCRIPTION /from START /to END");
+            return numberOfTasks;
+        }
+        String description = details.substring(0, fromMarker).trim();
+        String from = details.substring(fromMarker + " /from ".length(), toMarker).trim();
+        String to = details.substring(toMarker + " /to ".length()).trim();
+        if (from.isEmpty()) {
+            System.out.println("Please use: event DESCRIPTION /from START /to END");
+            return numberOfTasks;
+        }
+        return addTask(new Event(description, from, to), tasks, numberOfTasks);
+    }
+
+    /**
+     * Stores a task when there is room and displays the standard confirmation.
+     *
+     * @param task the task to store
+     * @param tasks the array containing the tasks
+     * @param numberOfTasks how many positions in {@code tasks} contain a task
+     * @return the updated task count
+     */
+    private static int addTask(Task task, Task[] tasks, int numberOfTasks) {
+        if (numberOfTasks >= MAX_TASKS) {
+            System.out.println("Sorry, I can only store up to " + MAX_TASKS + " tasks.");
+            return numberOfTasks;
+        }
+
+        tasks[numberOfTasks] = task;
+        int updatedNumberOfTasks = numberOfTasks + 1;
+        printDivider();
+        System.out.println("Got it. I've added this task:");
+        System.out.println("  " + task);
+        System.out.println("Now you have " + updatedNumberOfTasks + " tasks in the list.");
+        printDivider();
+        return updatedNumberOfTasks;
     }
 }

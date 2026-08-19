@@ -1,7 +1,8 @@
 /**
  * Represents one task and whether it has been completed.
+ * Concrete task types provide their own display format.
  */
-public class Task {
+public abstract class Task {
     /** The text that describes what needs to be done. */
     private final String description;
 
@@ -49,4 +50,12 @@ public class Task {
     public void markAsNotDone() {
         isDone = false;
     }
+
+    /**
+     * Returns this task in the format displayed to the user.
+     *
+     * @return a formatted task description
+     */
+    @Override
+    public abstract String toString();
 }
