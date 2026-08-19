@@ -153,6 +153,9 @@ event gym /from 7pm /to
 mark potato
 mark 1
 unmark
+todo plan homework
+mark 2
+unmark 0
 something else
 bye
 ```
@@ -160,7 +163,7 @@ bye
 **Run:**
 
 ```sh
-printf 'todo\ndeadline write essay\nevent gym /from 7pm /to\nmark potato\nmark 1\nunmark\nsomething else\nbye\n' | java src/main/java/Koko.java 2>&1
+printf 'todo\ndeadline write essay\nevent gym /from 7pm /to\nmark potato\nmark 1\nunmark\ntodo plan homework\nmark 2\nunmark 0\nsomething else\nbye\n' | java src/main/java/Koko.java 2>&1
 ```
 
 **Expected output:**
@@ -173,12 +176,37 @@ printf 'todo\ndeadline write essay\nevent gym /from 7pm /to\nmark potato\nmark 1
 |_|\_\___/|_|\_\___/  
 
 What can I do for you?
-Please provide a description, for example: todo borrow book
-Please use: deadline DESCRIPTION /by DATE_OR_TIME
-Please use: event DESCRIPTION /from START /to END
-Please provide the number of the task to mark, for example: mark 2
-Please provide a task number from 1 to 0.
-Please provide the number of the task to unmark, for example: unmark 2
-I don't understand that command. Try todo, deadline, event, list, mark, or unmark.
+____________________________________________________________
+Oops! A to-do needs a description. Try: todo borrow book.
+____________________________________________________________
+____________________________________________________________
+Oops! A deadline needs a description and a /by time. Try: deadline return book /by Friday.
+____________________________________________________________
+____________________________________________________________
+Oops! An event needs a description, /from time, and /to time. Try: event lecture /from Monday 2pm /to Monday 4pm.
+____________________________________________________________
+____________________________________________________________
+Oops! I need a task number to mark. Try: mark 2.
+____________________________________________________________
+____________________________________________________________
+Oops! There are no tasks to mark yet. Add one first.
+____________________________________________________________
+____________________________________________________________
+Oops! I need a task number to unmark. Try: unmark 2.
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [T][ ] plan homework
+Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Oops! Choose a task number from 1 to 1.
+____________________________________________________________
+____________________________________________________________
+Oops! Choose a task number from 1 to 1.
+____________________________________________________________
+____________________________________________________________
+Oops! I don't recognise that command. Try todo, deadline, event, list, mark, or unmark.
+____________________________________________________________
 Bye. Hope to see you again soon!
 ```

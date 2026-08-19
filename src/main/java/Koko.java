@@ -45,7 +45,7 @@ public class Koko {
             } else if (command.equals("event") || command.startsWith("event ")) {
                 numberOfTasks = addEvent(command, tasks, numberOfTasks);
             } else {
-                System.out.println("I don't understand that command. Try todo, deadline, event, list, mark, or unmark.");
+                printError("I don't recognise that command. Try todo, deadline, event, list, mark, or unmark.");
             }
         }
     }
@@ -77,8 +77,12 @@ public class Koko {
         try {
             int taskNumber = Integer.parseInt(taskNumberText);
             int taskIndex = taskNumber - 1;
+            if (numberOfTasks == 0) {
+                printError("There are no tasks to mark yet. Add one first.");
+                return;
+            }
             if (taskIndex < 0 || taskIndex >= numberOfTasks) {
-                System.out.println("Please provide a task number from 1 to " + numberOfTasks + ".");
+                printError("Choose a task number from 1 to " + numberOfTasks + ".");
                 return;
             }
 
@@ -88,7 +92,7 @@ public class Koko {
             System.out.println("  " + tasks[taskIndex]);
             printDivider();
         } catch (NumberFormatException exception) {
-            System.out.println("Please provide the number of the task to mark, for example: mark 2");
+            printError("I need a task number to mark. Try: mark 2.");
         }
     }
 
@@ -104,8 +108,12 @@ public class Koko {
         try {
             int taskNumber = Integer.parseInt(taskNumberText);
             int taskIndex = taskNumber - 1;
+            if (numberOfTasks == 0) {
+                printError("There are no tasks to unmark yet. Add one first.");
+                return;
+            }
             if (taskIndex < 0 || taskIndex >= numberOfTasks) {
-                System.out.println("Please provide a task number from 1 to " + numberOfTasks + ".");
+                printError("Choose a task number from 1 to " + numberOfTasks + ".");
                 return;
             }
 
@@ -115,7 +123,7 @@ public class Koko {
             System.out.println("  " + tasks[taskIndex]);
             printDivider();
         } catch (NumberFormatException exception) {
-            System.out.println("Please provide the number of the task to unmark, for example: unmark 2");
+            printError("I need a task number to unmark. Try: unmark 2.");
         }
     }
 
@@ -124,6 +132,17 @@ public class Koko {
      */
     private static void printDivider() {
         System.out.println("____________________________________________________________");
+    }
+
+    /**
+     * Displays a user-input error between dividers so it is easy to distinguish from normal responses.
+     *
+     * @param message the explanation and correction for the invalid command
+     */
+    private static void printError(String message) {
+        printDivider();
+        System.out.println("Oops! " + message);
+        printDivider();
     }
 
     /**
@@ -137,7 +156,7 @@ public class Koko {
     private static int addTodo(String command, Task[] tasks, int numberOfTasks) {
         String description = command.substring("todo".length()).trim();
         if (description.isEmpty()) {
-            System.out.println("Please provide a description, for example: todo borrow book");
+            printError("A to-do needs a description. Try: todo borrow book.");
             return numberOfTasks;
         }
         return addTask(new Todo(description), tasks, numberOfTasks);
@@ -156,7 +175,8 @@ public class Koko {
         String details = command.substring("deadline".length()).trim();
         int byMarker = details.indexOf(" /by ");
         if (byMarker < 1 || byMarker + " /by ".length() >= details.length()) {
-            System.out.println("Please use: deadline DESCRIPTION /by DATE_OR_TIME");
+            printError("A deadline needs a description and a /by time. "
+                    + "Try: deadline return book /by Friday.");
             return numberOfTasks;
         }
         String description = details.substring(0, byMarker).trim();
@@ -179,14 +199,16 @@ public class Koko {
         int toMarker = details.indexOf(" /to ");
         if (fromMarker < 1 || toMarker < fromMarker + " /from ".length()
                 || toMarker + " /to ".length() >= details.length()) {
-            System.out.println("Please use: event DESCRIPTION /from START /to END");
+            printError("An event needs a description, /from time, and /to time. "
+                    + "Try: event lecture /from Monday 2pm /to Monday 4pm.");
             return numberOfTasks;
         }
         String description = details.substring(0, fromMarker).trim();
         String from = details.substring(fromMarker + " /from ".length(), toMarker).trim();
         String to = details.substring(toMarker + " /to ".length()).trim();
         if (from.isEmpty()) {
-            System.out.println("Please use: event DESCRIPTION /from START /to END");
+            printError("An event needs a description, /from time, and /to time. "
+                    + "Try: event lecture /from Monday 2pm /to Monday 4pm.");
             return numberOfTasks;
         }
         return addTask(new Event(description, from, to), tasks, numberOfTasks);
@@ -202,7 +224,7 @@ public class Koko {
      */
     private static int addTask(Task task, Task[] tasks, int numberOfTasks) {
         if (numberOfTasks >= MAX_TASKS) {
-            System.out.println("Sorry, I can only store up to " + MAX_TASKS + " tasks.");
+            printError("I can only store up to " + MAX_TASKS + " tasks.");
             return numberOfTasks;
         }
 
