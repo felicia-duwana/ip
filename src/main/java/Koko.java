@@ -4,8 +4,11 @@ import java.util.Scanner;
  * Starts Koko's command-line interface.
  */
 public class Koko {
+    /** Maximum number of tasks that can be kept during one program run. */
+    private static final int MAX_TASKS = 100;
+
     /**
-     * Displays the welcome message, echoes commands, and stops when the user enters {@code bye}.
+     * Displays the welcome message, stores entered tasks, lists them on request, and stops on {@code bye}.
      *
      * @param args command-line arguments (not used)
      */
@@ -18,6 +21,8 @@ public class Koko {
         System.out.println(banner);
         System.out.println("What can I do for you?");
 
+        String[] tasks = new String[MAX_TASKS];
+        int numberOfTasks = 0;
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine();
@@ -27,7 +32,27 @@ public class Koko {
                 return;
             }
 
-            System.out.println(command);
+            if (command.equals("list")) {
+                printTasks(tasks, numberOfTasks);
+            } else if (numberOfTasks < MAX_TASKS) {
+                tasks[numberOfTasks] = command;
+                numberOfTasks++;
+                System.out.println("added: " + command);
+            } else {
+                System.out.println("Sorry, I can only store up to " + MAX_TASKS + " tasks.");
+            }
+        }
+    }
+
+    /**
+     * Prints all currently stored tasks with user-friendly numbering.
+     *
+     * @param tasks the array containing the tasks
+     * @param numberOfTasks how many positions in {@code tasks} contain a task
+     */
+    private static void printTasks(String[] tasks, int numberOfTasks) {
+        for (int index = 0; index < numberOfTasks; index++) {
+            System.out.println((index + 1) + ". " + tasks[index]);
         }
     }
 }
