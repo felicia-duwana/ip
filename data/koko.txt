@@ -1,0 +1,4 @@
+T | 0 | buy milk
+T | 1 | study CS
+D | 0 | submit assignment | Friday
+E | 0 | meeting | Monday 2pm | Monday 4pm

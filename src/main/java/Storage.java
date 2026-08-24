@@ -1,0 +1,156 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Handles saving and loading Koko's tasks from the hard disk.
+ */
+public class Storage {
+    private static final Path FILE_PATH = Paths.get("data", "koko.txt");
+
+    /**
+     * Saves all tasks to the data file.
+     *
+     * @param tasks the tasks to save
+     * @throws KokoException if the file cannot be written
+     */
+    public void save(List<Task> tasks) throws KokoException {
+        try {
+            Files.createDirectories(FILE_PATH.getParent());
+
+            List<String> lines = new ArrayList<>();
+
+            for (Task task : tasks) {
+                lines.add(toFileFormat(task));
+            }
+
+            Files.write(FILE_PATH, lines);
+        } catch (IOException exception) {
+            throw new KokoException("I couldn't save your tasks.");
+        }
+    }
+
+    /**
+     * Loads tasks from the data file.
+     * If the file does not exist yet, an empty task list is returned.
+     *
+     * @return the tasks loaded from the file
+     * @throws KokoException if the file cannot be read or is corrupted
+     */
+    public List<Task> load() throws KokoException {
+        List<Task> tasks = new ArrayList<>();
+
+        if (!Files.exists(FILE_PATH)) {
+            return tasks;
+        }
+
+        try {
+            List<String> lines = Files.readAllLines(FILE_PATH);
+
+            for (String line : lines) {
+                if (!line.trim().isEmpty()) {
+                    tasks.add(fromFileFormat(line));
+                }
+            }
+
+            return tasks;
+        } catch (IOException exception) {
+            throw new KokoException("I couldn't load your saved tasks.");
+        }
+    }
+
+    /**
+     * Converts a task into the format used in the save file.
+     *
+     * @param task the task to convert
+     * @return the saved representation of the task
+     */
+    private String toFileFormat(Task task) {
+        String status = task.getStatusIcon().equals("X") ? "1" : "0";
+
+        if (task instanceof Todo) {
+            return "T | " + status + " | " + task.getDescription();
+        }
+
+        if (task instanceof Deadline) {
+            Deadline deadline = (Deadline) task;
+
+            return "D | " + status + " | "
+                    + task.getDescription() + " | "
+                    + deadline.getBy();
+        }
+
+        Event event = (Event) task;
+
+        return "E | " + status + " | "
+                + task.getDescription() + " | "
+                + event.getFrom() + " | "
+                + event.getTo();
+    }
+
+    /**
+     * Converts one saved line back into a Task.
+     *
+     * @param line one line from the save file
+     * @return the reconstructed task
+     * @throws KokoException if the line does not have the expected format
+     */
+    private Task fromFileFormat(String line) throws KokoException {
+        String[] parts = line.split(" \\| ", -1);
+
+        if (parts.length < 3) {
+            throw new KokoException("The saved task file is corrupted.");
+        }
+
+        String type = parts[0];
+        String status = parts[1];
+
+        if (!status.equals("0") && !status.equals("1")) {
+            throw new KokoException("The saved task file is corrupted.");
+        }
+
+        try {
+            Task task;
+
+            switch (type) {
+                case "T":
+                    if (parts.length != 3) {
+                        throw new KokoException("The saved task file is corrupted.");
+                    }
+
+                    task = new Todo(parts[2]);
+                    break;
+
+                case "D":
+                    if (parts.length != 4) {
+                        throw new KokoException("The saved task file is corrupted.");
+                    }
+
+                    task = new Deadline(parts[2], parts[3]);
+                    break;
+
+                case "E":
+                    if (parts.length != 5) {
+                        throw new KokoException("The saved task file is corrupted.");
+                    }
+
+                    task = new Event(parts[2], parts[3], parts[4]);
+                    break;
+
+                default:
+                    throw new KokoException("The saved task file is corrupted.");
+            }
+
+            if (status.equals("1")) {
+                task.markAsDone();
+            }
+
+            return task;
+        } catch (ArrayIndexOutOfBoundsException exception) {
+            throw new KokoException("The saved task file is corrupted.");
+        }
+    }
+}
