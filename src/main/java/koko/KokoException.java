@@ -1,5 +1,7 @@
+package koko;
+
 /**
- * Represents a problem caused by an invalid Koko command or its arguments.
+ * Represents a problem caused by an invalid koko.Koko command or its arguments.
  */
 public class KokoException extends Exception {
     /**

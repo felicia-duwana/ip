@@ -1,3 +1,5 @@
+package koko;
+
 /**
  * Represents one task and whether it has been completed.
  * Subclasses add their task type and any date or time details.

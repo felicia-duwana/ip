@@ -1,9 +1,11 @@
+package koko;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * Handles parsing and validation of Koko commands.
+ * Handles parsing and validation of koko.Koko commands.
  */
 public class Parser {
     /** The format accepted for dates and times entered by the user. */
@@ -94,10 +96,10 @@ public class Parser {
     }
 
     /**
-     * Parses a deadline command and creates a Deadline.
+     * Parses a deadline command and creates a koko.Deadline.
      *
      * @param command the user's deadline command
-     * @return the parsed Deadline
+     * @return the parsed koko.Deadline
      * @throws KokoException if the command or date/time is invalid
      */
     public static Deadline parseDeadline(String command) throws KokoException {
@@ -130,10 +132,10 @@ public class Parser {
     }
 
     /**
-     * Parses an event command and creates an Event.
+     * Parses an event command and creates an koko.Event.
      *
      * @param command the user's event command
-     * @return the parsed Event
+     * @return the parsed koko.Event
      * @throws KokoException if the command or date/time is invalid
      */
     public static Event parseEvent(String command) throws KokoException {

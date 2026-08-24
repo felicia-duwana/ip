@@ -1,7 +1,9 @@
+package koko;
+
 import java.util.Scanner;
 
 /**
- * Handles interactions between Koko and the user.
+ * Handles interactions between koko.Koko and the user.
  */
 public class Ui {
     private final Scanner scanner;
@@ -14,7 +16,7 @@ public class Ui {
     }
 
     /**
-     * Displays Koko's welcome message.
+     * Displays koko.Koko's welcome message.
      */
     public void showWelcome() {
         String banner = " _  __     _          \n"
