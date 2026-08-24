@@ -1,28 +1,9 @@
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-
 /**
- * Starts Koko's command-line interface.
+ * Controls Koko's application logic.
  */
 public class Koko {
-    /** The format accepted for dates and times entered by the user. */
-    private static final DateTimeFormatter INPUT_FORMAT =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
-
-    /**
-     * The storage used to save and load tasks.
-     */
     private final Storage storage;
-
-    /**
-     * The task list managed by Koko.
-     */
     private TaskList tasks;
-
-    /**
-     * The user interface used to communicate with the user.
-     */
     private final Ui ui;
 
     /**
@@ -41,7 +22,7 @@ public class Koko {
     }
 
     /**
-     * Runs the Koko command-line interface.
+     * Runs Koko's command-line interface.
      */
     public void run() {
         ui.showWelcome();
@@ -50,24 +31,24 @@ public class Koko {
             String command = ui.readCommand();
 
             try {
-                if (command.equals("bye")) {
+                if (Parser.isBye(command)) {
                     ui.showBye();
                     return;
                 }
 
-                if (command.equals("list")) {
-                    printTasks();
-                } else if (command.equals("mark") || command.startsWith("mark ")) {
+                if (Parser.isList(command)) {
+                    ui.showTasks(tasks);
+                } else if (Parser.isCommand(command, "mark")) {
                     markTask(command);
-                } else if (command.equals("unmark") || command.startsWith("unmark ")) {
+                } else if (Parser.isCommand(command, "unmark")) {
                     unmarkTask(command);
-                } else if (command.equals("delete") || command.startsWith("delete ")) {
+                } else if (Parser.isCommand(command, "delete")) {
                     deleteTask(command);
-                } else if (command.equals("todo") || command.startsWith("todo ")) {
+                } else if (Parser.isCommand(command, "todo")) {
                     addTodo(command);
-                } else if (command.equals("deadline") || command.startsWith("deadline ")) {
+                } else if (Parser.isCommand(command, "deadline")) {
                     addDeadline(command);
-                } else if (command.equals("event") || command.startsWith("event ")) {
+                } else if (Parser.isCommand(command, "event")) {
                     addEvent(command);
                 } else {
                     throw new KokoException("I don't recognise that command. "
@@ -80,21 +61,13 @@ public class Koko {
     }
 
     /**
-     * Prints all currently stored tasks.
-     */
-    private void printTasks() {
-        ui.showTasks(tasks);
-    }
-
-    /**
-     * Marks the task identified by a one-based task number as done.
+     * Marks a task as done.
      *
      * @param command the user's mark command
-     * @throws KokoException if the command does not identify a stored task
-     *                       or if the tasks cannot be saved
+     * @throws KokoException if the task number is invalid or saving fails
      */
     private void markTask(String command) throws KokoException {
-        int taskIndex = getTaskIndex(command, "mark", tasks.size());
+        int taskIndex = Parser.getTaskIndex(command, "mark", tasks.size());
 
         tasks.get(taskIndex).markAsDone();
         storage.save(tasks.getTasks());
@@ -103,14 +76,13 @@ public class Koko {
     }
 
     /**
-     * Marks the task identified by a one-based task number as not done.
+     * Marks a task as not done.
      *
      * @param command the user's unmark command
-     * @throws KokoException if the command does not identify a stored task
-     *                       or if the tasks cannot be saved
+     * @throws KokoException if the task number is invalid or saving fails
      */
     private void unmarkTask(String command) throws KokoException {
-        int taskIndex = getTaskIndex(command, "unmark", tasks.size());
+        int taskIndex = Parser.getTaskIndex(command, "unmark", tasks.size());
 
         tasks.get(taskIndex).markAsNotDone();
         storage.save(tasks.getTasks());
@@ -119,14 +91,13 @@ public class Koko {
     }
 
     /**
-     * Removes the task identified by a one-based task number.
+     * Deletes a task.
      *
      * @param command the user's delete command
-     * @throws KokoException if the command does not identify a stored task
-     *                       or if the tasks cannot be saved
+     * @throws KokoException if the task number is invalid or saving fails
      */
     private void deleteTask(String command) throws KokoException {
-        int taskIndex = getTaskIndex(command, "delete", tasks.size());
+        int taskIndex = Parser.getTaskIndex(command, "delete", tasks.size());
 
         Task removedTask = tasks.remove(taskIndex);
         storage.save(tasks.getTasks());
@@ -135,144 +106,43 @@ public class Koko {
     }
 
     /**
-     * Converts the task number in a task-changing command into a valid zero-based index.
+     * Adds a todo task.
      *
-     * @param command the user's command that includes a task number
-     * @param action the action named in the command
-     * @param numberOfTasks how many tasks are currently stored
-     * @return the zero-based index of the requested task
-     * @throws KokoException if the task number is missing, invalid, or unavailable
-     */
-    private int getTaskIndex(String command, String action, int numberOfTasks)
-            throws KokoException {
-        String taskNumberText = command.substring(action.length()).trim();
-
-        try {
-            int taskNumber = Integer.parseInt(taskNumberText);
-            int taskIndex = taskNumber - 1;
-
-            if (numberOfTasks == 0) {
-                throw new KokoException(
-                        "There are no tasks to " + action + " yet. Add one first.");
-            }
-
-            if (taskIndex < 0 || taskIndex >= numberOfTasks) {
-                throw new KokoException(
-                        "Choose a task number from 1 to " + numberOfTasks + ".");
-            }
-
-            return taskIndex;
-        } catch (NumberFormatException exception) {
-            throw new KokoException(
-                    "I need a task number to " + action + ". Try: " + action + " 2.");
-        }
-    }
-
-    /**
-     * Adds a to-do task from a {@code todo DESCRIPTION} command.
-     *
-     * @param command the user's command
-     * @throws KokoException if the description is missing or the task cannot be saved
+     * @param command the user's todo command
+     * @throws KokoException if the description is missing or saving fails
      */
     private void addTodo(String command) throws KokoException {
-        String description = command.substring("todo".length()).trim();
-
-        if (description.isEmpty()) {
-            throw new KokoException(
-                    "A to-do needs a description. Try: todo borrow book.");
-        }
-
+        String description = Parser.parseTodo(command);
         addTask(new Todo(description));
     }
 
     /**
-     * Adds a deadline task from a {@code deadline DESCRIPTION /by DATE TIME} command.
+     * Adds a deadline task.
      *
-     * @param command the user's command
-     * @throws KokoException if the description or due date/time is missing or invalid
+     * @param command the user's deadline command
+     * @throws KokoException if the command is invalid or saving fails
      */
     private void addDeadline(String command) throws KokoException {
-        String details = command.substring("deadline".length()).trim();
-        int byMarker = details.indexOf(" /by ");
-
-        if (byMarker < 1 || byMarker + " /by ".length() >= details.length()) {
-            throw new KokoException(
-                    "A deadline needs a description and a /by date and time. "
-                            + "Try: deadline return book /by 2019-12-02 1800.");
-        }
-
-        String description = details.substring(0, byMarker).trim();
-        String byText = details.substring(byMarker + " /by ".length()).trim();
-
-        if (description.isEmpty() || byText.isEmpty()) {
-            throw new KokoException(
-                    "A deadline needs a description and a /by date and time. "
-                            + "Try: deadline return book /by 2019-12-02 1800.");
-        }
-
-        try {
-            LocalDateTime by = LocalDateTime.parse(byText, INPUT_FORMAT);
-            addTask(new Deadline(description, by));
-        } catch (DateTimeParseException exception) {
-            throw new KokoException(
-                    "I couldn't understand that date and time. "
-                            + "Use yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.");
-        }
+        Deadline deadline = Parser.parseDeadline(command);
+        addTask(deadline);
     }
 
     /**
-     * Adds an event task from an
-     * {@code event DESCRIPTION /from DATE TIME /to DATE TIME} command.
+     * Adds an event task.
      *
-     * @param command the user's command
-     * @throws KokoException if the description or date/time is missing or invalid
+     * @param command the user's event command
+     * @throws KokoException if the command is invalid or saving fails
      */
     private void addEvent(String command) throws KokoException {
-        String details = command.substring("event".length()).trim();
-        int fromMarker = details.indexOf(" /from ");
-        int toMarker = details.indexOf(" /to ");
-
-        if (fromMarker < 1
-                || toMarker < fromMarker + " /from ".length()
-                || toMarker + " /to ".length() >= details.length()) {
-            throw new KokoException(
-                    "An event needs a description, /from date and time, and /to date and time. "
-                            + "Try: event lecture /from 2019-12-02 1400 /to 2019-12-02 1600.");
-        }
-
-        String description = details.substring(0, fromMarker).trim();
-        String fromText = details.substring(
-                fromMarker + " /from ".length(), toMarker).trim();
-        String toText = details.substring(toMarker + " /to ".length()).trim();
-
-        if (description.isEmpty() || fromText.isEmpty() || toText.isEmpty()) {
-            throw new KokoException(
-                    "An event needs a description, /from date and time, and /to date and time. "
-                            + "Try: event lecture /from 2019-12-02 1400 /to 2019-12-02 1600.");
-        }
-
-        try {
-            LocalDateTime from = LocalDateTime.parse(fromText, INPUT_FORMAT);
-            LocalDateTime to = LocalDateTime.parse(toText, INPUT_FORMAT);
-
-            if (to.isBefore(from)) {
-                throw new KokoException(
-                        "An event cannot end before it starts.");
-            }
-
-            addTask(new Event(description, from, to));
-        } catch (DateTimeParseException exception) {
-            throw new KokoException(
-                    "I couldn't understand the event date and time. "
-                            + "Use yyyy-MM-dd HHmm, e.g. 2019-12-02 1400.");
-        }
+        Event event = Parser.parseEvent(command);
+        addTask(event);
     }
 
     /**
-     * Stores a task, saves the updated task list, and displays the confirmation.
+     * Adds a task and saves the updated task list.
      *
-     * @param task the task to store
-     * @throws KokoException if the task list cannot be saved
+     * @param task the task to add
+     * @throws KokoException if saving fails
      */
     private void addTask(Task task) throws KokoException {
         tasks.add(task);
@@ -282,7 +152,7 @@ public class Koko {
     }
 
     /**
-     * Starts the Koko application.
+     * Starts Koko.
      *
      * @param args command-line arguments (not used)
      */
