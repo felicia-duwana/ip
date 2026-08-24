@@ -1,7 +1,6 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Scanner;
 
 /**
  * Starts Koko's command-line interface.
@@ -12,145 +11,127 @@ public class Koko {
             DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
     /**
-     * Displays the welcome message, loads saved tasks, stores entered tasks,
-     * lists them on request, and stops on {@code bye}.
-     *
-     * @param args command-line arguments (not used)
+     * The storage used to save and load tasks.
      */
-    public static void main(String[] args) {
-        String banner = " _  __     _          \n"
-                + "| |/ /___ | | _____   \n"
-                + "| ' // _ \\| |/ / _ \\  \n"
-                + "| . \\ (_) |   < (_) | \n"
-                + "|_|\\_\\___/|_|\\_\\___/  \n";
+    private final Storage storage;
 
-        System.out.println(banner);
-        System.out.println("What can I do for you?");
+    /**
+     * The task list managed by Koko.
+     */
+    private TaskList tasks;
 
-        Storage storage = new Storage();
-        TaskList tasks;
+    /**
+     * The user interface used to communicate with the user.
+     */
+    private final Ui ui;
+
+    /**
+     * Creates a Koko application.
+     */
+    public Koko() {
+        storage = new Storage();
+        ui = new Ui();
 
         try {
             tasks = new TaskList(storage.load());
         } catch (KokoException exception) {
-            printError(exception.getMessage());
+            ui.showError(exception.getMessage());
             tasks = new TaskList();
         }
+    }
 
-        Scanner scanner = new Scanner(System.in);
+    /**
+     * Runs the Koko command-line interface.
+     */
+    public void run() {
+        ui.showWelcome();
 
-        while (scanner.hasNextLine()) {
-            String command = scanner.nextLine().trim();
+        while (true) {
+            String command = ui.readCommand();
 
             try {
                 if (command.equals("bye")) {
-                    System.out.println("Bye. Hope to see you again soon!");
+                    ui.showBye();
                     return;
                 }
 
                 if (command.equals("list")) {
-                    printTasks(tasks);
+                    printTasks();
                 } else if (command.equals("mark") || command.startsWith("mark ")) {
-                    markTask(command, tasks, storage);
+                    markTask(command);
                 } else if (command.equals("unmark") || command.startsWith("unmark ")) {
-                    unmarkTask(command, tasks, storage);
+                    unmarkTask(command);
                 } else if (command.equals("delete") || command.startsWith("delete ")) {
-                    deleteTask(command, tasks, storage);
+                    deleteTask(command);
                 } else if (command.equals("todo") || command.startsWith("todo ")) {
-                    addTodo(command, tasks, storage);
+                    addTodo(command);
                 } else if (command.equals("deadline") || command.startsWith("deadline ")) {
-                    addDeadline(command, tasks, storage);
+                    addDeadline(command);
                 } else if (command.equals("event") || command.startsWith("event ")) {
-                    addEvent(command, tasks, storage);
+                    addEvent(command);
                 } else {
                     throw new KokoException("I don't recognise that command. "
                             + "Try todo, deadline, event, list, mark, unmark, or delete.");
                 }
             } catch (KokoException exception) {
-                printError(exception.getMessage());
+                ui.showError(exception.getMessage());
             }
         }
     }
 
     /**
-     * Prints all currently stored tasks with user-friendly numbering and their completion status.
-     *
-     * @param tasks the task list containing the tasks
+     * Prints all currently stored tasks.
      */
-    private static void printTasks(TaskList tasks) {
-        printDivider();
-        System.out.println("Here are the tasks in your list:");
-        for (int index = 0; index < tasks.size(); index++) {
-            System.out.println((index + 1) + "." + tasks.get(index));
-        }
-        printDivider();
+    private void printTasks() {
+        ui.showTasks(tasks);
     }
 
     /**
      * Marks the task identified by a one-based task number as done.
      *
-     * @param command the user's {@code mark} command
-     * @param tasks the task list containing the tasks
-     * @param storage the storage used to save the task list
+     * @param command the user's mark command
      * @throws KokoException if the command does not identify a stored task
      *                       or if the tasks cannot be saved
      */
-    private static void markTask(String command, TaskList tasks, Storage storage)
-            throws KokoException {
+    private void markTask(String command) throws KokoException {
         int taskIndex = getTaskIndex(command, "mark", tasks.size());
 
         tasks.get(taskIndex).markAsDone();
         storage.save(tasks.getTasks());
 
-        printDivider();
-        System.out.println("Nice! I've marked this task as done:");
-        System.out.println("  " + tasks.get(taskIndex));
-        printDivider();
+        ui.showMarkDone(tasks.get(taskIndex));
     }
 
     /**
      * Marks the task identified by a one-based task number as not done.
      *
-     * @param command the user's {@code unmark} command
-     * @param tasks the task list containing the tasks
-     * @param storage the storage used to save the task list
+     * @param command the user's unmark command
      * @throws KokoException if the command does not identify a stored task
      *                       or if the tasks cannot be saved
      */
-    private static void unmarkTask(String command, TaskList tasks, Storage storage)
-            throws KokoException {
+    private void unmarkTask(String command) throws KokoException {
         int taskIndex = getTaskIndex(command, "unmark", tasks.size());
 
         tasks.get(taskIndex).markAsNotDone();
         storage.save(tasks.getTasks());
 
-        printDivider();
-        System.out.println("OK, I've marked this task as not done yet:");
-        System.out.println("  " + tasks.get(taskIndex));
-        printDivider();
+        ui.showMarkNotDone(tasks.get(taskIndex));
     }
 
     /**
-     * Removes the task identified by a one-based task number from the task list.
+     * Removes the task identified by a one-based task number.
      *
-     * @param command the user's {@code delete} command
-     * @param tasks the task list containing the tasks
-     * @param storage the storage used to save the task list
+     * @param command the user's delete command
      * @throws KokoException if the command does not identify a stored task
      *                       or if the tasks cannot be saved
      */
-    private static void deleteTask(String command, TaskList tasks, Storage storage)
-            throws KokoException {
+    private void deleteTask(String command) throws KokoException {
         int taskIndex = getTaskIndex(command, "delete", tasks.size());
 
         Task removedTask = tasks.remove(taskIndex);
         storage.save(tasks.getTasks());
 
-        printDivider();
-        System.out.println("Noted. I've removed this task:");
-        System.out.println("  " + removedTask);
-        System.out.println("Now you have " + tasks.size() + " tasks in the list.");
-        printDivider();
+        ui.showDeletedTask(removedTask, tasks.size());
     }
 
     /**
@@ -162,7 +143,7 @@ public class Koko {
      * @return the zero-based index of the requested task
      * @throws KokoException if the task number is missing, invalid, or unavailable
      */
-    private static int getTaskIndex(String command, String action, int numberOfTasks)
+    private int getTaskIndex(String command, String action, int numberOfTasks)
             throws KokoException {
         String taskNumberText = command.substring(action.length()).trim();
 
@@ -188,33 +169,12 @@ public class Koko {
     }
 
     /**
-     * Prints the divider used around command responses.
-     */
-    private static void printDivider() {
-        System.out.println("____________________________________________________________");
-    }
-
-    /**
-     * Displays a user-input error between dividers.
-     *
-     * @param message the explanation and correction for the invalid command
-     */
-    private static void printError(String message) {
-        printDivider();
-        System.out.println("Oops! " + message);
-        printDivider();
-    }
-
-    /**
      * Adds a to-do task from a {@code todo DESCRIPTION} command.
      *
      * @param command the user's command
-     * @param tasks the task list containing the tasks
-     * @param storage the storage used to save the task list
      * @throws KokoException if the description is missing or the task cannot be saved
      */
-    private static void addTodo(String command, TaskList tasks, Storage storage)
-            throws KokoException {
+    private void addTodo(String command) throws KokoException {
         String description = command.substring("todo".length()).trim();
 
         if (description.isEmpty()) {
@@ -222,19 +182,16 @@ public class Koko {
                     "A to-do needs a description. Try: todo borrow book.");
         }
 
-        addTask(new Todo(description), tasks, storage);
+        addTask(new Todo(description));
     }
 
     /**
      * Adds a deadline task from a {@code deadline DESCRIPTION /by DATE TIME} command.
      *
      * @param command the user's command
-     * @param tasks the task list containing the tasks
-     * @param storage the storage used to save the task list
      * @throws KokoException if the description or due date/time is missing or invalid
      */
-    private static void addDeadline(String command, TaskList tasks, Storage storage)
-            throws KokoException {
+    private void addDeadline(String command) throws KokoException {
         String details = command.substring("deadline".length()).trim();
         int byMarker = details.indexOf(" /by ");
 
@@ -255,7 +212,7 @@ public class Koko {
 
         try {
             LocalDateTime by = LocalDateTime.parse(byText, INPUT_FORMAT);
-            addTask(new Deadline(description, by), tasks, storage);
+            addTask(new Deadline(description, by));
         } catch (DateTimeParseException exception) {
             throw new KokoException(
                     "I couldn't understand that date and time. "
@@ -268,12 +225,9 @@ public class Koko {
      * {@code event DESCRIPTION /from DATE TIME /to DATE TIME} command.
      *
      * @param command the user's command
-     * @param tasks the task list containing the tasks
-     * @param storage the storage used to save the task list
      * @throws KokoException if the description or date/time is missing or invalid
      */
-    private static void addEvent(String command, TaskList tasks, Storage storage)
-            throws KokoException {
+    private void addEvent(String command) throws KokoException {
         String details = command.substring("event".length()).trim();
         int fromMarker = details.indexOf(" /from ");
         int toMarker = details.indexOf(" /to ");
@@ -306,7 +260,7 @@ public class Koko {
                         "An event cannot end before it starts.");
             }
 
-            addTask(new Event(description, from, to), tasks, storage);
+            addTask(new Event(description, from, to));
         } catch (DateTimeParseException exception) {
             throw new KokoException(
                     "I couldn't understand the event date and time. "
@@ -315,22 +269,24 @@ public class Koko {
     }
 
     /**
-     * Stores a task, saves the updated task list, and displays the standard confirmation.
+     * Stores a task, saves the updated task list, and displays the confirmation.
      *
      * @param task the task to store
-     * @param tasks the task list containing the tasks
-     * @param storage the storage used to save the task list
      * @throws KokoException if the task list cannot be saved
      */
-    private static void addTask(Task task, TaskList tasks, Storage storage)
-            throws KokoException {
+    private void addTask(Task task) throws KokoException {
         tasks.add(task);
         storage.save(tasks.getTasks());
 
-        printDivider();
-        System.out.println("Got it. I've added this task:");
-        System.out.println("  " + task);
-        System.out.println("Now you have " + tasks.size() + " tasks in the list.");
-        printDivider();
+        ui.showAddedTask(task, tasks.size());
+    }
+
+    /**
+     * Starts the Koko application.
+     *
+     * @param args command-line arguments (not used)
+     */
+    public static void main(String[] args) {
+        new Koko().run();
     }
 }
