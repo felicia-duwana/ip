@@ -1,3 +1,6 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -6,6 +9,10 @@ import java.util.Scanner;
  * Starts Koko's command-line interface.
  */
 public class Koko {
+    /** The format accepted for dates and times entered by the user. */
+    private static final DateTimeFormatter INPUT_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
     /**
      * Displays the welcome message, loads saved tasks, stores entered tasks,
      * lists them on request, and stops on {@code bye}.
@@ -221,13 +228,12 @@ public class Koko {
     }
 
     /**
-     * Adds a deadline task from a {@code deadline DESCRIPTION /by TIME} command.
-     * Date and time text is deliberately kept as entered by the user.
+     * Adds a deadline task from a {@code deadline DESCRIPTION /by DATE TIME} command.
      *
      * @param command the user's command
      * @param tasks the list containing the tasks
      * @param storage the storage used to save the task list
-     * @throws KokoException if the description or due time is missing
+     * @throws KokoException if the description or due date/time is missing or invalid
      */
     private static void addDeadline(String command, List<Task> tasks, Storage storage)
             throws KokoException {
@@ -236,31 +242,37 @@ public class Koko {
 
         if (byMarker < 1 || byMarker + " /by ".length() >= details.length()) {
             throw new KokoException(
-                    "A deadline needs a description and a /by time. "
-                            + "Try: deadline return book /by Friday.");
+                    "A deadline needs a description and a /by date and time. "
+                            + "Try: deadline return book /by 2019-12-02 1800.");
         }
 
         String description = details.substring(0, byMarker).trim();
-        String by = details.substring(byMarker + " /by ".length()).trim();
+        String byText = details.substring(byMarker + " /by ".length()).trim();
 
-        if (description.isEmpty() || by.isEmpty()) {
+        if (description.isEmpty() || byText.isEmpty()) {
             throw new KokoException(
-                    "A deadline needs a description and a /by time. "
-                            + "Try: deadline return book /by Friday.");
+                    "A deadline needs a description and a /by date and time. "
+                            + "Try: deadline return book /by 2019-12-02 1800.");
         }
 
-        addTask(new Deadline(description, by), tasks, storage);
+        try {
+            LocalDateTime by = LocalDateTime.parse(byText, INPUT_FORMAT);
+            addTask(new Deadline(description, by), tasks, storage);
+        } catch (DateTimeParseException exception) {
+            throw new KokoException(
+                    "I couldn't understand that date and time. "
+                            + "Use yyyy-MM-dd HHmm, e.g. 2019-12-02 1800.");
+        }
     }
 
     /**
      * Adds an event task from an
-     * {@code event DESCRIPTION /from START /to END} command.
-     * Date and time text is deliberately kept as entered by the user.
+     * {@code event DESCRIPTION /from DATE TIME /to DATE TIME} command.
      *
      * @param command the user's command
      * @param tasks the list containing the tasks
      * @param storage the storage used to save the task list
-     * @throws KokoException if the description, start time, or end time is missing
+     * @throws KokoException if the description or date/time is missing or invalid
      */
     private static void addEvent(String command, List<Task> tasks, Storage storage)
             throws KokoException {
@@ -272,22 +284,36 @@ public class Koko {
                 || toMarker < fromMarker + " /from ".length()
                 || toMarker + " /to ".length() >= details.length()) {
             throw new KokoException(
-                    "An event needs a description, /from time, and /to time. "
-                            + "Try: event lecture /from Monday 2pm /to Monday 4pm.");
+                    "An event needs a description, /from date and time, and /to date and time. "
+                            + "Try: event lecture /from 2019-12-02 1400 /to 2019-12-02 1600.");
         }
 
         String description = details.substring(0, fromMarker).trim();
-        String from = details.substring(
+        String fromText = details.substring(
                 fromMarker + " /from ".length(), toMarker).trim();
-        String to = details.substring(toMarker + " /to ".length()).trim();
+        String toText = details.substring(toMarker + " /to ".length()).trim();
 
-        if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
+        if (description.isEmpty() || fromText.isEmpty() || toText.isEmpty()) {
             throw new KokoException(
-                    "An event needs a description, /from time, and /to time. "
-                            + "Try: event lecture /from Monday 2pm /to Monday 4pm.");
+                    "An event needs a description, /from date and time, and /to date and time. "
+                            + "Try: event lecture /from 2019-12-02 1400 /to 2019-12-02 1600.");
         }
 
-        addTask(new Event(description, from, to), tasks, storage);
+        try {
+            LocalDateTime from = LocalDateTime.parse(fromText, INPUT_FORMAT);
+            LocalDateTime to = LocalDateTime.parse(toText, INPUT_FORMAT);
+
+            if (to.isBefore(from)) {
+                throw new KokoException(
+                        "An event cannot end before it starts.");
+            }
+
+            addTask(new Event(description, from, to), tasks, storage);
+        } catch (DateTimeParseException exception) {
+            throw new KokoException(
+                    "I couldn't understand the event date and time. "
+                            + "Use yyyy-MM-dd HHmm, e.g. 2019-12-02 1400.");
+        }
     }
 
     /**

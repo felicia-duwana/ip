@@ -1,4 +1,2 @@
-T | 0 | buy milk
-T | 1 | study CS
-D | 0 | submit assignment | Friday
-E | 0 | meeting | Monday 2pm | Monday 4pm
+D | 0 | return book | 2019-12-02 1800
+E | 0 | lecture | 2019-12-02 1400 | 2019-12-02 1600

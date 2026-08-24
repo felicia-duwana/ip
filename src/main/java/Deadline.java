@@ -1,27 +1,30 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Represents a task that must be completed by a specified time.
  */
 public class Deadline extends Task {
-    /** The user-provided due date or time. */
-    private final String by;
+    /** The deadline date and time. */
+    private final LocalDateTime by;
 
     /**
      * Creates a deadline task.
      *
      * @param description the text describing the task
-     * @param by the user-provided due date or time
+     * @param by the deadline date and time
      */
-    public Deadline(String description, String by) {
+    public Deadline(String description, LocalDateTime by) {
         super(description);
         this.by = by;
     }
 
     /**
-     * Returns the deadline's due date or time.
+     * Returns the deadline date and time.
      *
-     * @return the due date or time
+     * @return the deadline date and time
      */
-    public String getBy() {
+    public LocalDateTime getBy() {
         return by;
     }
 
@@ -32,6 +35,7 @@ public class Deadline extends Task {
      */
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy, h:mm a");
+        return "[D]" + super.toString() + " (by: " + by.format(formatter) + ")";
     }
 }
