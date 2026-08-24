@@ -2,6 +2,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +13,10 @@ import java.util.List;
  */
 public class Storage {
     private static final Path FILE_PATH = Paths.get("data", "koko.txt");
+
+    /** The format used to store dates and times in the save file. */
+    private static final DateTimeFormatter DATE_TIME_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
     /**
      * Saves all tasks to the data file.
@@ -80,21 +87,21 @@ public class Storage {
 
             return "D | " + status + " | "
                     + task.getDescription() + " | "
-                    + deadline.getBy();
+                    + deadline.getBy().format(DATE_TIME_FORMAT);
         }
 
         Event event = (Event) task;
 
         return "E | " + status + " | "
                 + task.getDescription() + " | "
-                + event.getFrom() + " | "
-                + event.getTo();
+                + event.getFrom().format(DATE_TIME_FORMAT) + " | "
+                + event.getTo().format(DATE_TIME_FORMAT);
     }
 
     /**
      * Converts one saved line back into a Task.
      *
-     * @param line one line from the save file
+     * @param line one line from the data file
      * @return the reconstructed task
      * @throws KokoException if the line does not have the expected format
      */
@@ -129,7 +136,8 @@ public class Storage {
                         throw new KokoException("The saved task file is corrupted.");
                     }
 
-                    task = new Deadline(parts[2], parts[3]);
+                    LocalDateTime by = LocalDateTime.parse(parts[3], DATE_TIME_FORMAT);
+                    task = new Deadline(parts[2], by);
                     break;
 
                 case "E":
@@ -137,7 +145,9 @@ public class Storage {
                         throw new KokoException("The saved task file is corrupted.");
                     }
 
-                    task = new Event(parts[2], parts[3], parts[4]);
+                    LocalDateTime from = LocalDateTime.parse(parts[3], DATE_TIME_FORMAT);
+                    LocalDateTime to = LocalDateTime.parse(parts[4], DATE_TIME_FORMAT);
+                    task = new Event(parts[2], from, to);
                     break;
 
                 default:
@@ -149,6 +159,8 @@ public class Storage {
             }
 
             return task;
+        } catch (DateTimeParseException exception) {
+            throw new KokoException("The saved task file is corrupted.");
         } catch (ArrayIndexOutOfBoundsException exception) {
             throw new KokoException("The saved task file is corrupted.");
         }

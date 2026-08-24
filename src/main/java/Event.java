@@ -1,41 +1,44 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Represents a task that occurs between a user-provided start and end time.
  */
 public class Event extends Task {
-    /** The user-provided start date or time. */
-    private final String from;
+    /** The event's start date and time. */
+    private final LocalDateTime from;
 
-    /** The user-provided end date or time. */
-    private final String to;
+    /** The event's end date and time. */
+    private final LocalDateTime to;
 
     /**
      * Creates an event task.
      *
      * @param description the text describing the event
-     * @param from the user-provided start date or time
-     * @param to the user-provided end date or time
+     * @param from the event's start date and time
+     * @param to the event's end date and time
      */
-    public Event(String description, String from, String to) {
+    public Event(String description, LocalDateTime from, LocalDateTime to) {
         super(description);
         this.from = from;
         this.to = to;
     }
 
     /**
-     * Returns the event's start date or time.
+     * Returns the event's start date and time.
      *
-     * @return the start date or time
+     * @return the event's start date and time
      */
-    public String getFrom() {
+    public LocalDateTime getFrom() {
         return from;
     }
 
     /**
-     * Returns the event's end date or time.
+     * Returns the event's end date and time.
      *
-     * @return the end date or time
+     * @return the event's end date and time
      */
-    public String getTo() {
+    public LocalDateTime getTo() {
         return to;
     }
 
@@ -46,7 +49,9 @@ public class Event extends Task {
      */
     @Override
     public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy, h:mm a");
         return "[E]" + super.toString()
-                + " (from: " + from + " to: " + to + ")";
+                + " (from: " + from.format(formatter)
+                + " to: " + to.format(formatter) + ")";
     }
 }
