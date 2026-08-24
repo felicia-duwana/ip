@@ -1,6 +1,6 @@
-# Koko User Guide
+# koko.Koko User Guide
 
-Koko is a command-line task manager. Tasks are kept while the program is running.
+koko.Koko is a command-line task manager. Tasks are kept while the program is running.
 
 ## Adding to-dos
 
@@ -10,28 +10,28 @@ Use `todo` for a task without a date or time.
 todo borrow book
 ```
 
-Koko adds it as `[T][ ] borrow book`.
+koko.Koko adds it as `[T][ ] borrow book`.
 
 ## Adding deadlines
 
-Use `deadline` followed by the task description and `/by` followed by any due-date text. Koko stores the date text exactly as entered; it does not need to be a real date.
+Use `deadline` followed by the task description and `/by` followed by any due-date text. koko.Koko stores the date text exactly as entered; it does not need to be a real date.
 
 ```
 deadline return book /by Sunday
 deadline do homework /by no idea :-p
 ```
 
-Koko displays a deadline with a `[D]` marker, for example: `[D][ ] return book (by: Sunday)`.
+koko.Koko displays a deadline with a `[D]` marker, for example: `[D][ ] return book (by: Sunday)`.
 
 ## Adding events
 
-Use `event` followed by the event description, `/from` and a start time, then `/to` and an end time. Koko keeps both time values as text.
+Use `event` followed by the event description, `/from` and a start time, then `/to` and an end time. koko.Koko keeps both time values as text.
 
 ```
 event project meeting /from Mon 2pm /to 4pm
 ```
 
-Koko displays an event with an `[E]` marker, for example: `[E][ ] project meeting (from: Mon 2pm to: 4pm)`.
+koko.Koko displays an event with an `[E]` marker, for example: `[E][ ] project meeting (from: Mon 2pm to: 4pm)`.
 
 ## Listing tasks
 
@@ -50,7 +50,7 @@ mark 2
 unmark 2
 ```
 
-## Exiting Koko
+## Exiting koko.Koko
 
 Use `bye` to close the program.
 

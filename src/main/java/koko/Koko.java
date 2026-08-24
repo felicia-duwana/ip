@@ -1,5 +1,7 @@
+package koko;
+
 /**
- * Controls Koko's application logic.
+ * Controls koko.Koko's application logic.
  */
 public class Koko {
     private final Storage storage;
@@ -7,7 +9,7 @@ public class Koko {
     private final Ui ui;
 
     /**
-     * Creates a Koko application.
+     * Creates a koko.Koko application.
      */
     public Koko() {
         storage = new Storage();
@@ -22,7 +24,7 @@ public class Koko {
     }
 
     /**
-     * Runs Koko's command-line interface.
+     * Runs koko.Koko's command-line interface.
      */
     public void run() {
         ui.showWelcome();
@@ -152,7 +154,7 @@ public class Koko {
     }
 
     /**
-     * Starts Koko.
+     * Starts koko.Koko.
      *
      * @param args command-line arguments (not used)
      */

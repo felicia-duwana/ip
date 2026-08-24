@@ -1,3 +1,5 @@
+package koko;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles saving and loading Koko's tasks from the hard disk.
+ * Handles saving and loading koko.Koko's tasks from the hard disk.
  */
 public class Storage {
     private static final Path FILE_PATH = Paths.get("data", "koko.txt");
@@ -99,7 +101,7 @@ public class Storage {
     }
 
     /**
-     * Converts one saved line back into a Task.
+     * Converts one saved line back into a koko.Task.
      *
      * @param line one line from the data file
      * @return the reconstructed task

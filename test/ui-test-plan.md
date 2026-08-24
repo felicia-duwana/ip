@@ -20,7 +20,7 @@ bye
 **Run:**
 
 ```sh
-printf 'bye\n' | java src/main/java/Koko.java 2>&1
+printf 'bye\n' | java src/main/java/koko.Koko.java 2>&1
 ```
 
 **Expected output:**
@@ -53,7 +53,7 @@ bye
 **Run:**
 
 ```sh
-printf 'todo read book\ndeadline submit report /by Friday\nevent project meeting /from Mon 2pm /to Mon 3pm\nlist\nbye\n' | java src/main/java/Koko.java 2>&1
+printf 'todo read book\ndeadline submit report /by Friday\nevent project meeting /from Mon 2pm /to Mon 3pm\nlist\nbye\n' | java src/main/java/koko.Koko.java 2>&1
 ```
 
 **Expected output:**
@@ -107,7 +107,7 @@ bye
 **Run:**
 
 ```sh
-printf 'todo borrow book\nmark 1\nunmark 1\nlist\nbye\n' | java src/main/java/Koko.java 2>&1
+printf 'todo borrow book\nmark 1\nunmark 1\nlist\nbye\n' | java src/main/java/koko.Koko.java 2>&1
 ```
 
 **Expected output:**
@@ -165,7 +165,7 @@ bye
 **Run:**
 
 ```sh
-printf 'todo\ndeadline write essay\nevent gym /from 7pm /to\nmark potato\nmark 1\nunmark\ndelete\ntodo plan homework\nmark 2\nunmark 0\ndelete 2\nsomething else\nbye\n' | java src/main/java/Koko.java 2>&1
+printf 'todo\ndeadline write essay\nevent gym /from 7pm /to\nmark potato\nmark 1\nunmark\ndelete\ntodo plan homework\nmark 2\nunmark 0\ndelete 2\nsomething else\nbye\n' | java src/main/java/koko.Koko.java 2>&1
 ```
 
 **Expected output:**
@@ -242,7 +242,7 @@ bye
 **Run:**
 
 ```sh
-printf 'todo read book\ndeadline return book /by June 6th\nevent project meeting /from Aug 6th 2pm /to 4pm\ntodo join sports club\ntodo borrow book\nmark 1\nmark 2\nmark 4\ndelete 3\nlist\nbye\n' | java src/main/java/Koko.java 2>&1
+printf 'todo read book\ndeadline return book /by June 6th\nevent project meeting /from Aug 6th 2pm /to 4pm\ntodo join sports club\ntodo borrow book\nmark 1\nmark 2\nmark 4\ndelete 3\nlist\nbye\n' | java src/main/java/koko.Koko.java 2>&1
 ```
 
 **Expected output:**

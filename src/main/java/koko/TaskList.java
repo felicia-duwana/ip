@@ -1,8 +1,10 @@
+package koko;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents the list of tasks managed by Koko.
+ * Represents the list of tasks managed by koko.Koko.
  */
 public class TaskList {
     private final List<Task> tasks;
