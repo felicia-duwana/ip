@@ -1,8 +1,6 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -30,13 +28,13 @@ public class Koko {
         System.out.println("What can I do for you?");
 
         Storage storage = new Storage();
-        List<Task> tasks;
+        TaskList tasks;
 
         try {
-            tasks = storage.load();
+            tasks = new TaskList(storage.load());
         } catch (KokoException exception) {
             printError(exception.getMessage());
-            tasks = new ArrayList<>();
+            tasks = new TaskList();
         }
 
         Scanner scanner = new Scanner(System.in);
@@ -77,9 +75,9 @@ public class Koko {
     /**
      * Prints all currently stored tasks with user-friendly numbering and their completion status.
      *
-     * @param tasks the list containing the tasks
+     * @param tasks the task list containing the tasks
      */
-    private static void printTasks(List<Task> tasks) {
+    private static void printTasks(TaskList tasks) {
         printDivider();
         System.out.println("Here are the tasks in your list:");
         for (int index = 0; index < tasks.size(); index++) {
@@ -92,17 +90,17 @@ public class Koko {
      * Marks the task identified by a one-based task number as done.
      *
      * @param command the user's {@code mark} command
-     * @param tasks the list containing the tasks
+     * @param tasks the task list containing the tasks
      * @param storage the storage used to save the task list
      * @throws KokoException if the command does not identify a stored task
      *                       or if the tasks cannot be saved
      */
-    private static void markTask(String command, List<Task> tasks, Storage storage)
+    private static void markTask(String command, TaskList tasks, Storage storage)
             throws KokoException {
         int taskIndex = getTaskIndex(command, "mark", tasks.size());
 
         tasks.get(taskIndex).markAsDone();
-        storage.save(tasks);
+        storage.save(tasks.getTasks());
 
         printDivider();
         System.out.println("Nice! I've marked this task as done:");
@@ -114,17 +112,17 @@ public class Koko {
      * Marks the task identified by a one-based task number as not done.
      *
      * @param command the user's {@code unmark} command
-     * @param tasks the list containing the tasks
+     * @param tasks the task list containing the tasks
      * @param storage the storage used to save the task list
      * @throws KokoException if the command does not identify a stored task
      *                       or if the tasks cannot be saved
      */
-    private static void unmarkTask(String command, List<Task> tasks, Storage storage)
+    private static void unmarkTask(String command, TaskList tasks, Storage storage)
             throws KokoException {
         int taskIndex = getTaskIndex(command, "unmark", tasks.size());
 
         tasks.get(taskIndex).markAsNotDone();
-        storage.save(tasks);
+        storage.save(tasks.getTasks());
 
         printDivider();
         System.out.println("OK, I've marked this task as not done yet:");
@@ -136,17 +134,17 @@ public class Koko {
      * Removes the task identified by a one-based task number from the task list.
      *
      * @param command the user's {@code delete} command
-     * @param tasks the list containing the tasks
+     * @param tasks the task list containing the tasks
      * @param storage the storage used to save the task list
      * @throws KokoException if the command does not identify a stored task
      *                       or if the tasks cannot be saved
      */
-    private static void deleteTask(String command, List<Task> tasks, Storage storage)
+    private static void deleteTask(String command, TaskList tasks, Storage storage)
             throws KokoException {
         int taskIndex = getTaskIndex(command, "delete", tasks.size());
 
         Task removedTask = tasks.remove(taskIndex);
-        storage.save(tasks);
+        storage.save(tasks.getTasks());
 
         printDivider();
         System.out.println("Noted. I've removed this task:");
@@ -156,7 +154,7 @@ public class Koko {
     }
 
     /**
-     * Converts the task number in a task-changing command into a valid zero-based array index.
+     * Converts the task number in a task-changing command into a valid zero-based index.
      *
      * @param command the user's command that includes a task number
      * @param action the action named in the command
@@ -197,7 +195,7 @@ public class Koko {
     }
 
     /**
-     * Displays a user-input error between dividers so it is easy to distinguish from normal responses.
+     * Displays a user-input error between dividers.
      *
      * @param message the explanation and correction for the invalid command
      */
@@ -211,11 +209,11 @@ public class Koko {
      * Adds a to-do task from a {@code todo DESCRIPTION} command.
      *
      * @param command the user's command
-     * @param tasks the list containing the tasks
+     * @param tasks the task list containing the tasks
      * @param storage the storage used to save the task list
      * @throws KokoException if the description is missing or the task cannot be saved
      */
-    private static void addTodo(String command, List<Task> tasks, Storage storage)
+    private static void addTodo(String command, TaskList tasks, Storage storage)
             throws KokoException {
         String description = command.substring("todo".length()).trim();
 
@@ -231,11 +229,11 @@ public class Koko {
      * Adds a deadline task from a {@code deadline DESCRIPTION /by DATE TIME} command.
      *
      * @param command the user's command
-     * @param tasks the list containing the tasks
+     * @param tasks the task list containing the tasks
      * @param storage the storage used to save the task list
      * @throws KokoException if the description or due date/time is missing or invalid
      */
-    private static void addDeadline(String command, List<Task> tasks, Storage storage)
+    private static void addDeadline(String command, TaskList tasks, Storage storage)
             throws KokoException {
         String details = command.substring("deadline".length()).trim();
         int byMarker = details.indexOf(" /by ");
@@ -270,11 +268,11 @@ public class Koko {
      * {@code event DESCRIPTION /from DATE TIME /to DATE TIME} command.
      *
      * @param command the user's command
-     * @param tasks the list containing the tasks
+     * @param tasks the task list containing the tasks
      * @param storage the storage used to save the task list
      * @throws KokoException if the description or date/time is missing or invalid
      */
-    private static void addEvent(String command, List<Task> tasks, Storage storage)
+    private static void addEvent(String command, TaskList tasks, Storage storage)
             throws KokoException {
         String details = command.substring("event".length()).trim();
         int fromMarker = details.indexOf(" /from ");
@@ -320,14 +318,14 @@ public class Koko {
      * Stores a task, saves the updated task list, and displays the standard confirmation.
      *
      * @param task the task to store
-     * @param tasks the list containing the tasks
+     * @param tasks the task list containing the tasks
      * @param storage the storage used to save the task list
      * @throws KokoException if the task list cannot be saved
      */
-    private static void addTask(Task task, List<Task> tasks, Storage storage)
+    private static void addTask(Task task, TaskList tasks, Storage storage)
             throws KokoException {
         tasks.add(task);
-        storage.save(tasks);
+        storage.save(tasks.getTasks());
 
         printDivider();
         System.out.println("Got it. I've added this task:");
