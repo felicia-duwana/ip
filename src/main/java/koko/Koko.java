@@ -40,6 +40,8 @@ public class Koko {
 
                 if (Parser.isList(command)) {
                     ui.showTasks(tasks);
+                } else if (Parser.isCommand(command, "find")) {
+                    findTasks(command);
                 } else if (Parser.isCommand(command, "mark")) {
                     markTask(command);
                 } else if (Parser.isCommand(command, "unmark")) {
@@ -151,6 +153,23 @@ public class Koko {
         storage.save(tasks.getTasks());
 
         ui.showAddedTask(task, tasks.size());
+    }
+
+    /**
+     * Finds and displays tasks containing the given keyword.
+     *
+     * @param command the user's find command
+     * @throws KokoException if the keyword is missing
+     */
+    private void findTasks(String command) throws KokoException {
+        String keyword = command.substring("find".length()).trim();
+
+        if (keyword.isEmpty()) {
+            throw new KokoException(
+                    "I need a keyword to search for. Try: find book.");
+        }
+
+        ui.showMatchingTasks(tasks.find(keyword));
     }
 
     /**
