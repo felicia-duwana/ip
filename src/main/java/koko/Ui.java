@@ -1,5 +1,6 @@
 package koko;
 
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -125,6 +126,22 @@ public class Ui {
     public void showError(String message) {
         showDivider();
         System.out.println("Oops! " + message);
+        showDivider();
+    }
+
+    /**
+     * Displays the tasks matching a search keyword.
+     *
+     * @param tasks the matching tasks to display
+     */
+    public void showMatchingTasks(List<Task> tasks) {
+        showDivider();
+        System.out.println("Here are the matching tasks in your list:");
+
+        for (int index = 0; index < tasks.size(); index++) {
+            System.out.println((index + 1) + "." + tasks.get(index));
+        }
+
         showDivider();
     }
 
