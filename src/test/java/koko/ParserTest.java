@@ -8,19 +8,20 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests the command parsing logic in Parser.
+ * Tests for the Parser class.
  */
 public class ParserTest {
 
     /**
-     * Tests that a valid deadline is parsed into the correct description and date/time.
+     * Tests that a valid deadline is parsed correctly.
      */
     @Test
-    void parseDeadline_validDeadline_returnsCorrectDeadline() throws KokoException {
-        Deadline deadline = Parser.parseDeadline(
-                "deadline return book /by 2026-09-01 1800");
+    void parseDeadline_validDeadline_returnsDeadline() throws KokoException {
+        Deadline deadline = Parser.parseDeadline("deadline return book /by 2026-09-01 1800");
 
-        assertEquals("return book", deadline.getDescription());
+        assertEquals(
+                "return book",
+                deadline.getDescription());
         assertEquals(
                 LocalDateTime.of(2026, 9, 1, 18, 0),
                 deadline.getBy());
@@ -31,9 +32,7 @@ public class ParserTest {
      */
     @Test
     void parseDeadline_missingBy_throwsException() {
-        assertThrows(
-                KokoException.class,
-                () -> Parser.parseDeadline("deadline return book"));
+        assertThrows(KokoException.class, () -> Parser.parseDeadline("deadline return book"));
     }
 
     /**
@@ -41,10 +40,8 @@ public class ParserTest {
      */
     @Test
     void parseDeadline_invalidDate_throwsException() {
-        assertThrows(
-                KokoException.class,
-                () -> Parser.parseDeadline(
-                        "deadline return book /by 01-09-2026 1800"));
+        assertThrows(KokoException.class, () ->
+                Parser.parseDeadline("deadline return book /by 01-09-2026 1800"));
     }
 
     /**
@@ -52,10 +49,8 @@ public class ParserTest {
      */
     @Test
     void parseDeadline_invalidTime_throwsException() {
-        assertThrows(
-                KokoException.class,
-                () -> Parser.parseDeadline(
-                        "deadline return book /by 2026-09-01 2500"));
+        assertThrows(KokoException.class, () ->
+                Parser.parseDeadline("deadline return book /by 2026-09-01 2500"));
     }
 
     /**
@@ -63,9 +58,7 @@ public class ParserTest {
      */
     @Test
     void parseDeadline_emptyDescription_throwsException() {
-        assertThrows(
-                KokoException.class,
-                () -> Parser.parseDeadline(
-                        "deadline /by 2026-09-01 1800"));
+        assertThrows(KokoException.class, () ->
+                Parser.parseDeadline("deadline /by 2026-09-01 1800"));
     }
 }
