@@ -1,7 +1,6 @@
 package koko;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Represents a task that occurs between a user-provided start and end time.
@@ -51,9 +50,8 @@ public class Event extends Task {
      */
     @Override
     public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy, h:mm a");
         return "[E]" + super.toString()
-                + " (from: " + from.format(formatter)
-                + " to: " + to.format(formatter) + ")";
+                + " (from: " + from.format(DISPLAY_DATE_TIME_FORMAT)
+                + " to: " + to.format(DISPLAY_DATE_TIME_FORMAT) + ")";
     }
 }

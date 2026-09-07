@@ -1,7 +1,6 @@
 package koko;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Represents a task that must be completed by a specified time.
@@ -37,7 +36,6 @@ public class Deadline extends Task {
      */
     @Override
     public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy, h:mm a");
-        return "[D]" + super.toString() + " (by: " + by.format(formatter) + ")";
+        return "[D]" + super.toString() + " (by: " + by.format(DISPLAY_DATE_TIME_FORMAT) + ")";
     }
 }
