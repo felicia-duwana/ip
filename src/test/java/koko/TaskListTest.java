@@ -3,6 +3,8 @@ package koko;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -57,5 +59,22 @@ public class TaskListTest {
         assertEquals(2, taskList.size());
         assertSame(first, taskList.get(0));
         assertSame(second, taskList.get(1));
+    }
+
+    /**
+     * Tests that finding tasks returns every matching task in insertion order.
+     */
+    @Test
+    void find_matchingDescriptions_returnsMatchingTasksInInsertionOrder() {
+        TaskList taskList = new TaskList();
+        Todo firstMatch = new Todo("borrow book");
+        Todo nonMatch = new Todo("buy groceries");
+        Todo secondMatch = new Todo("return book");
+
+        taskList.add(firstMatch);
+        taskList.add(nonMatch);
+        taskList.add(secondMatch);
+
+        assertEquals(List.of(firstMatch, secondMatch), taskList.find("book"));
     }
 }
