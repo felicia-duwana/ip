@@ -22,6 +22,7 @@ public class TaskList {
      * @param tasks the tasks to store in the task list
      */
     public TaskList(List<Task> tasks) {
+        assert tasks != null : "A task list must be initialized with a task collection.";
         this.tasks = new ArrayList<>(tasks);
     }
 
@@ -31,6 +32,7 @@ public class TaskList {
      * @param task the task to add
      */
     public void add(Task task) {
+        assert task != null : "A task list cannot contain null tasks.";
         tasks.add(task);
     }
 
@@ -41,6 +43,7 @@ public class TaskList {
      * @return the requested task
      */
     public Task get(int index) {
+        assert isValidIndex(index) : "A task index must refer to an existing task.";
         return tasks.get(index);
     }
 
@@ -51,6 +54,7 @@ public class TaskList {
      * @return the removed task
      */
     public Task remove(int index) {
+        assert isValidIndex(index) : "A task index must refer to an existing task.";
         return tasks.remove(index);
     }
 
@@ -88,5 +92,15 @@ public class TaskList {
         }
 
         return matchingTasks;
+    }
+
+    /**
+     * Checks whether an index refers to a task currently in this list.
+     *
+     * @param index the zero-based task index to check
+     * @return true if the index is valid
+     */
+    private boolean isValidIndex(int index) {
+        return index >= 0 && index < tasks.size();
     }
 }
