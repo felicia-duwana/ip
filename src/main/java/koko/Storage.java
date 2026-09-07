@@ -78,6 +78,7 @@ public class Storage {
      * @return the saved representation of the task
      */
     private String toFileFormat(Task task) {
+        assert task != null : "Only real tasks can be saved.";
         String status = task.getStatusIcon().equals("X") ? "1" : "0";
 
         if (task instanceof Todo) {
@@ -92,6 +93,7 @@ public class Storage {
                     + deadline.getBy().format(DATE_TIME_FORMAT);
         }
 
+        assert task instanceof Event : "Saved tasks must be to-dos, deadlines, or events.";
         Event event = (Event) task;
 
         return "E | " + status + " | "
