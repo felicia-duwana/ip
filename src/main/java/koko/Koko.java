@@ -125,48 +125,119 @@ public class Koko {
             if (Parser.isBye(input)) {
                 return "Bye. Hope to see you again soon!";
             }
+
             if (Parser.isList(input)) {
                 return formatTaskList(tasks.getTasks(), "Here are the tasks in your list:");
-            } else if (Parser.isCommand(input, "find")) {
-                String keyword = input.substring("find".length()).trim();
-                if (keyword.isEmpty()) {
-                    throw new KokoException(
-                            "I need a keyword to search for. Try: find book.");
-                }
-                return formatTaskList(
-                        tasks.find(keyword),
-                        "Here are the matching tasks in your list:");
-            } else if (Parser.isCommand(input, "mark")) {
-                int taskIndex = Parser.getTaskIndex(input, "mark", tasks.size());
-                tasks.get(taskIndex).markAsDone();
-                storage.save(tasks.getTasks());
-                return "Nice! I've marked this task as done:\n  "
-                        + tasks.get(taskIndex);
-            } else if (Parser.isCommand(input, "unmark")) {
-                int taskIndex = Parser.getTaskIndex(input, "unmark", tasks.size());
-                tasks.get(taskIndex).markAsNotDone();
-                storage.save(tasks.getTasks());
-                return "OK, I've marked this task as not done yet:\n  "
-                        + tasks.get(taskIndex);
-            } else if (Parser.isCommand(input, "delete")) {
-                int taskIndex = Parser.getTaskIndex(input, "delete", tasks.size());
-                Task removedTask = tasks.remove(taskIndex);
-                storage.save(tasks.getTasks());
-                return "Noted. I've removed this task:\n  " + removedTask
-                        + "\nNow you have " + tasks.size() + " tasks in the list.";
-            } else if (Parser.isCommand(input, "todo")) {
-                return addTaskForGui(new Todo(Parser.parseTodo(input)));
-            } else if (Parser.isCommand(input, "deadline")) {
-                return addTaskForGui(Parser.parseDeadline(input));
-            } else if (Parser.isCommand(input, "event")) {
-                return addTaskForGui(Parser.parseEvent(input));
-            } else {
-                throw new KokoException("I don't recognise that command. "
-                        + "Try todo, deadline, event, list, mark, unmark, or delete.");
             }
+
+            return getCommandResponse(input);
         } catch (KokoException exception) {
             return exception.getMessage();
         }
+    }
+
+    /**
+     * Returns the GUI response for a non-list, non-bye command.
+     *
+     * @param input the user's input line
+     * @return Koko's response text
+     * @throws KokoException if the command is invalid or cannot be saved
+     */
+    private String getCommandResponse(String input) throws KokoException {
+        if (Parser.isCommand(input, "find")) {
+            return findTasksForGui(input);
+        }
+
+        if (Parser.isCommand(input, "mark")) {
+            return markTaskForGui(input);
+        }
+
+        if (Parser.isCommand(input, "unmark")) {
+            return unmarkTaskForGui(input);
+        }
+
+        if (Parser.isCommand(input, "delete")) {
+            return deleteTaskForGui(input);
+        }
+
+        if (Parser.isCommand(input, "todo")) {
+            return addTaskForGui(new Todo(Parser.parseTodo(input)));
+        }
+
+        if (Parser.isCommand(input, "deadline")) {
+            return addTaskForGui(Parser.parseDeadline(input));
+        }
+
+        if (Parser.isCommand(input, "event")) {
+            return addTaskForGui(Parser.parseEvent(input));
+        }
+
+        throw new KokoException("I don't recognise that command. "
+                + "Try todo, deadline, event, list, mark, unmark, or delete.");
+    }
+
+    /**
+     * Returns the GUI response for a find command.
+     *
+     * @param input the user's find command
+     * @return the formatted matching tasks
+     * @throws KokoException if the keyword is missing
+     */
+    private String findTasksForGui(String input) throws KokoException {
+        String keyword = input.substring("find".length()).trim();
+        if (keyword.isEmpty()) {
+            throw new KokoException(
+                    "I need a keyword to search for. Try: find book.");
+        }
+
+        return formatTaskList(
+                tasks.find(keyword),
+                "Here are the matching tasks in your list:");
+    }
+
+    /**
+     * Marks a task as done and returns the GUI response.
+     *
+     * @param input the user's mark command
+     * @return the confirmation response
+     * @throws KokoException if the task number is invalid or the tasks cannot be saved
+     */
+    private String markTaskForGui(String input) throws KokoException {
+        int taskIndex = Parser.getTaskIndex(input, "mark", tasks.size());
+        Task task = tasks.get(taskIndex);
+        task.markAsDone();
+        storage.save(tasks.getTasks());
+        return "Nice! I've marked this task as done:\n  " + task;
+    }
+
+    /**
+     * Marks a task as not done and returns the GUI response.
+     *
+     * @param input the user's unmark command
+     * @return the confirmation response
+     * @throws KokoException if the task number is invalid or the tasks cannot be saved
+     */
+    private String unmarkTaskForGui(String input) throws KokoException {
+        int taskIndex = Parser.getTaskIndex(input, "unmark", tasks.size());
+        Task task = tasks.get(taskIndex);
+        task.markAsNotDone();
+        storage.save(tasks.getTasks());
+        return "OK, I've marked this task as not done yet:\n  " + task;
+    }
+
+    /**
+     * Deletes a task and returns the GUI response.
+     *
+     * @param input the user's delete command
+     * @return the confirmation response
+     * @throws KokoException if the task number is invalid or the tasks cannot be saved
+     */
+    private String deleteTaskForGui(String input) throws KokoException {
+        int taskIndex = Parser.getTaskIndex(input, "delete", tasks.size());
+        Task removedTask = tasks.remove(taskIndex);
+        storage.save(tasks.getTasks());
+        return "Noted. I've removed this task:\n  " + removedTask
+                + "\nNow you have " + tasks.size() + " tasks in the list.";
     }
 
     private String addTaskForGui(Task task) throws KokoException {

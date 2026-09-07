@@ -1,10 +1,16 @@
 package koko;
 
+import java.time.format.DateTimeFormatter;
+
 /**
  * Represents one task and whether it has been completed.
  * Subclasses add their task type and any date or time details.
  */
 public abstract class Task {
+    /** The format used to display task date and time details. */
+    protected static final DateTimeFormatter DISPLAY_DATE_TIME_FORMAT =
+            DateTimeFormatter.ofPattern("MMM d yyyy, h:mm a");
+
     /** The text that describes what needs to be done. */
     private final String description;
 

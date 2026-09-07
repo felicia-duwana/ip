@@ -165,8 +165,6 @@ public class Storage {
             return task;
         } catch (DateTimeParseException exception) {
             throw new KokoException("The saved task file is corrupted.");
-        } catch (ArrayIndexOutOfBoundsException exception) {
-            throw new KokoException("The saved task file is corrupted.");
         }
     }
 }
