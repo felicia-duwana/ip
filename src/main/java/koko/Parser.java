@@ -54,6 +54,8 @@ public class Parser {
      */
     public static int getTaskIndex(String command, String action, int numberOfTasks)
             throws KokoException {
+        assert isCommand(command, action) : "Task-index parsing requires the expected command action.";
+        assert numberOfTasks >= 0 : "The number of stored tasks cannot be negative.";
         String taskNumberText = command.substring(action.length()).trim();
 
         try {
@@ -85,6 +87,7 @@ public class Parser {
      * @throws KokoException if the description is missing
      */
     public static String parseTodo(String command) throws KokoException {
+        assert isCommand(command, "todo") : "To-do parsing requires a to-do command.";
         String description = command.substring("todo".length()).trim();
 
         if (description.isEmpty()) {
@@ -103,6 +106,7 @@ public class Parser {
      * @throws KokoException if the command or date/time is invalid
      */
     public static Deadline parseDeadline(String command) throws KokoException {
+        assert isCommand(command, "deadline") : "Deadline parsing requires a deadline command.";
         String details = command.substring("deadline".length()).trim();
         int byMarker = details.indexOf(" /by ");
 
@@ -139,6 +143,7 @@ public class Parser {
      * @throws KokoException if the command or date/time is invalid
      */
     public static Event parseEvent(String command) throws KokoException {
+        assert isCommand(command, "event") : "Event parsing requires an event command.";
         String details = command.substring("event".length()).trim();
         int fromMarker = details.indexOf(" /from ");
         int toMarker = details.indexOf(" /to ");
