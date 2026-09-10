@@ -48,6 +48,15 @@ public abstract class Task {
     }
 
     /**
+     * Checks whether this task has been completed.
+     *
+     * @return true if this task is done
+     */
+    public boolean isDone() {
+        return isDone;
+    }
+
+    /**
      * Marks this task as completed.
      */
     public void markAsDone() {

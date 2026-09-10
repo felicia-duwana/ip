@@ -1,5 +1,6 @@
 package koko;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -14,8 +15,17 @@ public class Koko {
      * Creates a new Koko chatbot and loads saved tasks.
      */
     public Koko() {
-        storage = new Storage();
+        this(new Storage());
+    }
+
+    /**
+     * Creates a chatbot using the given task storage.
+     *
+     * @param storage the storage used to load and save tasks
+     */
+    Koko(Storage storage) {
         ui = new Ui();
+        this.storage = storage;
         try {
             tasks = new TaskList(storage.load());
         } catch (KokoException exception) {
@@ -46,6 +56,8 @@ public class Koko {
                     unmarkTask(command);
                 } else if (Parser.isCommand(command, "delete")) {
                     deleteTask(command);
+                } else if (Parser.isCommand(command, "update")) {
+                    updateTask(command);
                 } else if (Parser.isCommand(command, "todo")) {
                     addTodo(command);
                 } else if (Parser.isCommand(command, "deadline")) {
@@ -54,7 +66,7 @@ public class Koko {
                     addEvent(command);
                 } else {
                     throw new KokoException("I don't recognise that command. "
-                            + "Try todo, deadline, event, list, mark, unmark, or delete.");
+                            + "Try todo, deadline, event, list, mark, unmark, delete, or update.");
                 }
             } catch (KokoException exception) {
                 ui.showError(exception.getMessage());
@@ -81,6 +93,20 @@ public class Koko {
         Task removedTask = tasks.remove(taskIndex);
         storage.save(tasks.getTasks());
         ui.showDeletedTask(removedTask, tasks.size());
+    }
+
+    /**
+     * Updates one task and displays the confirmation in the CLI.
+     *
+     * @param command the user's update command
+     * @throws KokoException if the update details are invalid or cannot be saved
+     */
+    private void updateTask(String command) throws KokoException {
+        UpdateRequest request = Parser.parseUpdate(command, tasks.size());
+        Task updatedTask = createUpdatedTask(tasks.get(request.getTaskIndex()), request);
+        tasks.set(request.getTaskIndex(), updatedTask);
+        storage.save(tasks.getTasks());
+        ui.showUpdatedTask(updatedTask);
     }
 
     private void addTodo(String command) throws KokoException {
@@ -160,6 +186,10 @@ public class Koko {
             return deleteTaskForGui(input);
         }
 
+        if (Parser.isCommand(input, "update")) {
+            return updateTaskForGui(input);
+        }
+
         if (Parser.isCommand(input, "todo")) {
             return addTaskForGui(new Todo(Parser.parseTodo(input)));
         }
@@ -173,7 +203,7 @@ public class Koko {
         }
 
         throw new KokoException("I don't recognise that command. "
-                + "Try todo, deadline, event, list, mark, unmark, or delete.");
+                + "Try todo, deadline, event, list, mark, unmark, delete, or update.");
     }
 
     /**
@@ -238,6 +268,96 @@ public class Koko {
         storage.save(tasks.getTasks());
         return "Noted. I've removed this task:\n  " + removedTask
                 + "\nNow you have " + tasks.size() + " tasks in the list.";
+    }
+
+    /**
+     * Updates a task and returns the GUI response.
+     *
+     * @param input the user's update command
+     * @return the confirmation response
+     * @throws KokoException if the update details are invalid or cannot be saved
+     */
+    private String updateTaskForGui(String input) throws KokoException {
+        UpdateRequest request = Parser.parseUpdate(input, tasks.size());
+        Task updatedTask = createUpdatedTask(tasks.get(request.getTaskIndex()), request);
+        tasks.set(request.getTaskIndex(), updatedTask);
+        storage.save(tasks.getTasks());
+        return "Updated this task:\n  " + updatedTask;
+    }
+
+    /**
+     * Creates a same-type replacement task containing the requested changes.
+     *
+     * @param task the task being updated
+     * @param request the requested replacement fields
+     * @return the updated task, retaining the original completion status
+     * @throws KokoException if a field is unsuitable for the task type or an event range is invalid
+     */
+    private Task createUpdatedTask(Task task, UpdateRequest request) throws KokoException {
+        Task updatedTask;
+
+        if (task instanceof Todo) {
+            ensureNoDateFields(request);
+            String description = request.getDescription() == null
+                    ? task.getDescription()
+                    : request.getDescription();
+            updatedTask = new Todo(description);
+        } else if (task instanceof Deadline) {
+            ensureNoEventFields(request);
+            Deadline deadline = (Deadline) task;
+            String description = request.getDescription() == null
+                    ? task.getDescription()
+                    : request.getDescription();
+            LocalDateTime by = request.getBy() == null ? deadline.getBy() : request.getBy();
+            updatedTask = new Deadline(description, by);
+        } else {
+            assert task instanceof Event : "Tasks can only be to-dos, deadlines, or events.";
+            Event event = (Event) task;
+            String description = request.getDescription() == null
+                    ? task.getDescription()
+                    : request.getDescription();
+            LocalDateTime from = request.getFrom() == null ? event.getFrom() : request.getFrom();
+            LocalDateTime to = request.getTo() == null ? event.getTo() : request.getTo();
+
+            if (request.hasBy()) {
+                throw new KokoException("That field cannot be updated for this task.");
+            }
+            if (to.isBefore(from)) {
+                throw new KokoException("An event cannot end before it starts.");
+            }
+
+            updatedTask = new Event(description, from, to);
+        }
+
+        if (task.isDone()) {
+            updatedTask.markAsDone();
+        }
+
+        return updatedTask;
+    }
+
+    /**
+     * Rejects date and time fields supplied for a to-do task.
+     *
+     * @param request the requested update fields
+     * @throws KokoException if a date or time field was supplied
+     */
+    private void ensureNoDateFields(UpdateRequest request) throws KokoException {
+        if (request.hasBy() || request.hasFrom() || request.hasTo()) {
+            throw new KokoException("That field cannot be updated for this task.");
+        }
+    }
+
+    /**
+     * Rejects event-only fields supplied for a deadline task.
+     *
+     * @param request the requested update fields
+     * @throws KokoException if an event time field was supplied
+     */
+    private void ensureNoEventFields(UpdateRequest request) throws KokoException {
+        if (request.hasFrom() || request.hasTo()) {
+            throw new KokoException("That field cannot be updated for this task.");
+        }
     }
 
     private String addTaskForGui(Task task) throws KokoException {

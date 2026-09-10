@@ -14,11 +14,30 @@ import java.util.List;
  * Handles saving and loading koko.Koko's tasks from the hard disk.
  */
 public class Storage {
-    private static final Path FILE_PATH = Paths.get("data", "koko.txt");
+    private static final Path DEFAULT_FILE_PATH = Paths.get("data", "koko.txt");
 
     /** The format used to store dates and times in the save file. */
     private static final DateTimeFormatter DATE_TIME_FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
+    private final Path filePath;
+
+    /**
+     * Creates storage that uses the application's default save-file location.
+     */
+    public Storage() {
+        this(DEFAULT_FILE_PATH);
+    }
+
+    /**
+     * Creates storage using the given save-file location.
+     * This constructor supports isolated automated tests.
+     *
+     * @param filePath the location of the save file
+     */
+    Storage(Path filePath) {
+        this.filePath = filePath;
+    }
 
     /**
      * Saves all tasks to the data file.
@@ -28,7 +47,7 @@ public class Storage {
      */
     public void save(List<Task> tasks) throws KokoException {
         try {
-            Files.createDirectories(FILE_PATH.getParent());
+            Files.createDirectories(filePath.getParent());
 
             List<String> lines = new ArrayList<>();
 
@@ -36,7 +55,7 @@ public class Storage {
                 lines.add(toFileFormat(task));
             }
 
-            Files.write(FILE_PATH, lines);
+            Files.write(filePath, lines);
         } catch (IOException exception) {
             throw new KokoException("I couldn't save your tasks.");
         }
@@ -52,12 +71,12 @@ public class Storage {
     public List<Task> load() throws KokoException {
         List<Task> tasks = new ArrayList<>();
 
-        if (!Files.exists(FILE_PATH)) {
+        if (!Files.exists(filePath)) {
             return tasks;
         }
 
         try {
-            List<String> lines = Files.readAllLines(FILE_PATH);
+            List<String> lines = Files.readAllLines(filePath);
 
             for (String line : lines) {
                 if (!line.trim().isEmpty()) {

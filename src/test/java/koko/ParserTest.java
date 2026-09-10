@@ -61,4 +61,26 @@ public class ParserTest {
         assertThrows(KokoException.class, () ->
                 Parser.parseDeadline("deadline /by 2026-09-01 1800"));
     }
+
+    /**
+     * Tests that an update with a description and event end time is parsed.
+     */
+    @Test
+    void parseUpdate_multipleFields_returnsUpdateRequest() throws KokoException {
+        UpdateRequest request = Parser.parseUpdate(
+                "update 2 /desc project review /to 2026-09-20 1800", 3);
+
+        assertEquals(1, request.getTaskIndex());
+        assertEquals("project review", request.getDescription());
+        assertEquals(LocalDateTime.of(2026, 9, 20, 18, 0), request.getTo());
+    }
+
+    /**
+     * Tests that repeated update fields are rejected.
+     */
+    @Test
+    void parseUpdate_repeatedField_throwsException() {
+        assertThrows(KokoException.class, () -> Parser.parseUpdate(
+                "update 1 /to 2026-09-20 1800 /to 2026-09-20 1900", 1));
+    }
 }

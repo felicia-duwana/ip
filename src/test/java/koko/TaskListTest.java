@@ -77,4 +77,20 @@ public class TaskListTest {
 
         assertEquals(List.of(firstMatch, secondMatch), taskList.find("book"));
     }
+
+    /**
+     * Tests that replacing a task retains its position in the list.
+     */
+    @Test
+    void set_existingTask_replacesTaskAtSameIndex() {
+        TaskList taskList = new TaskList();
+        Todo original = new Todo("read book");
+        Todo replacement = new Todo("read chapter 3");
+        taskList.add(original);
+
+        taskList.set(0, replacement);
+
+        assertEquals(1, taskList.size());
+        assertSame(replacement, taskList.get(0));
+    }
 }

@@ -119,6 +119,18 @@ public class Ui {
     }
 
     /**
+     * Displays a message confirming that a task was updated.
+     *
+     * @param task the task after its details were updated
+     */
+    public void showUpdatedTask(Task task) {
+        showDivider();
+        System.out.println("Updated this task:");
+        System.out.println("  " + task);
+        showDivider();
+    }
+
+    /**
      * Displays an error message.
      *
      * @param message the error message

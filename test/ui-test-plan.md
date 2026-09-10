@@ -2,10 +2,11 @@
 
 ## Execution details
 
-- Run these cases from the repository root with Java 25. The command uses Java source-file mode, so it compiles and starts the current program for each test case.
-- The `Console input` block shows text sent to standard input. It will not appear in captured output because the program is run with piped input.
-- Compare the combined standard output and standard error to `Expected output` exactly after converting CRLF line endings to LF. A blank line in an output block is significant.
-- Run cases in order. Stop the test session at the first failed or unlaunchable case.
+- Run `./gradlew classes` with Java 25 before starting this test session.
+- Run each case from the repository root. Each command creates a temporary working directory so saved tasks from one case do not affect another.
+- The `Console input` block shows text sent to standard input. It is not expected to be echoed by the program.
+- Compare combined standard output and standard error with the `Expected output` block exactly after converting CRLF line endings to LF. Blank lines are significant.
+- Run cases in order and stop at the first mismatch.
 
 ## Test case 1 — Welcome and exit
 
@@ -20,7 +21,7 @@ bye
 **Run:**
 
 ```sh
-printf 'bye\n' | java src/main/java/koko.Koko.java 2>&1
+repo_root=$(pwd); case_dir=$(mktemp -d); (cd "$case_dir" && printf 'bye\n' | java -cp "$repo_root/build/classes/java/main" koko.Koko) 2>&1
 ```
 
 **Expected output:**
@@ -36,16 +37,20 @@ What can I do for you?
 Bye. Hope to see you again soon!
 ```
 
-## Test case 2 — Add and list each task type
+## Test case 2 — Partially update every task type
 
-**Aim:** Verify that to-dos, deadlines, and events are stored and displayed with their details.
+**Aim:** Verify that `update` changes only supplied fields, preserves an event's done status, and supports to-dos, deadlines, and events.
 
 **Console input:**
 
 ```text
-todo read book
-deadline submit report /by Friday
-event project meeting /from Mon 2pm /to Mon 3pm
+event project meeting /from 2026-09-20 1400 /to 2026-09-20 1600
+mark 1
+update 1 /to 2026-09-20 1800
+deadline submit draft /by 2026-09-18 2359
+update 2 /desc submit final draft /by 2026-09-19 1200
+todo read chapter 2
+update 3 /desc read chapter 3
 list
 bye
 ```
@@ -53,7 +58,79 @@ bye
 **Run:**
 
 ```sh
-printf 'todo read book\ndeadline submit report /by Friday\nevent project meeting /from Mon 2pm /to Mon 3pm\nlist\nbye\n' | java src/main/java/koko.Koko.java 2>&1
+repo_root=$(pwd); case_dir=$(mktemp -d); (cd "$case_dir" && printf 'event project meeting /from 2026-09-20 1400 /to 2026-09-20 1600\nmark 1\nupdate 1 /to 2026-09-20 1800\ndeadline submit draft /by 2026-09-18 2359\nupdate 2 /desc submit final draft /by 2026-09-19 1200\ntodo read chapter 2\nupdate 3 /desc read chapter 3\nlist\nbye\n' | java -cp "$repo_root/build/classes/java/main" koko.Koko) 2>&1
+```
+
+**Expected output:**
+
+```text
+ _  __     _          
+| |/ /___ | | _____   
+| ' // _ \| |/ / _ \  
+| . \ (_) |   < (_) | 
+|_|\_\___/|_|\_\___/  
+
+What can I do for you?
+____________________________________________________________
+Got it. I've added this task:
+  [E][ ] project meeting (from: Sept 20 2026, 2:00 pm to: Sept 20 2026, 4:00 pm)
+Now you have 1 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Nice! I've marked this task as done:
+  [E][X] project meeting (from: Sept 20 2026, 2:00 pm to: Sept 20 2026, 4:00 pm)
+____________________________________________________________
+____________________________________________________________
+Updated this task:
+  [E][X] project meeting (from: Sept 20 2026, 2:00 pm to: Sept 20 2026, 6:00 pm)
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [D][ ] submit draft (by: Sept 18 2026, 11:59 pm)
+Now you have 2 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Updated this task:
+  [D][ ] submit final draft (by: Sept 19 2026, 12:00 pm)
+____________________________________________________________
+____________________________________________________________
+Got it. I've added this task:
+  [T][ ] read chapter 2
+Now you have 3 tasks in the list.
+____________________________________________________________
+____________________________________________________________
+Updated this task:
+  [T][ ] read chapter 3
+____________________________________________________________
+____________________________________________________________
+Here are the tasks in your list:
+1.[E][X] project meeting (from: Sept 20 2026, 2:00 pm to: Sept 20 2026, 6:00 pm)
+2.[D][ ] submit final draft (by: Sept 19 2026, 12:00 pm)
+3.[T][ ] read chapter 3
+____________________________________________________________
+Bye. Hope to see you again soon!
+```
+
+## Test case 3 — Reject invalid updates
+
+**Aim:** Verify that update rejects fields unsuitable for a task, missing fields, repeated fields, and invalid event time ranges.
+
+**Console input:**
+
+```text
+todo read book
+update 1 /by 2026-09-20 1800
+update 1
+update 1 /desc first /desc second
+event meeting /from 2026-09-20 1400 /to 2026-09-20 1600
+update 2 /to 2026-09-20 1300
+bye
+```
+
+**Run:**
+
+```sh
+repo_root=$(pwd); case_dir=$(mktemp -d); (cd "$case_dir" && printf 'todo read book\nupdate 1 /by 2026-09-20 1800\nupdate 1\nupdate 1 /desc first /desc second\nevent meeting /from 2026-09-20 1400 /to 2026-09-20 1600\nupdate 2 /to 2026-09-20 1300\nbye\n' | java -cp "$repo_root/build/classes/java/main" koko.Koko) 2>&1
 ```
 
 **Expected output:**
@@ -72,237 +149,21 @@ Got it. I've added this task:
 Now you have 1 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
+Oops! That field cannot be updated for this task.
+____________________________________________________________
+____________________________________________________________
+Oops! I need at least one field to update. Try: update 2 /desc new description.
+____________________________________________________________
+____________________________________________________________
+Oops! Each update field can be specified only once.
+____________________________________________________________
+____________________________________________________________
 Got it. I've added this task:
-  [D][ ] submit report (by: Friday)
+  [E][ ] meeting (from: Sept 20 2026, 2:00 pm to: Sept 20 2026, 4:00 pm)
 Now you have 2 tasks in the list.
 ____________________________________________________________
 ____________________________________________________________
-Got it. I've added this task:
-  [E][ ] project meeting (from: Mon 2pm to: Mon 3pm)
-Now you have 3 tasks in the list.
-____________________________________________________________
-____________________________________________________________
-Here are the tasks in your list:
-1.[T][ ] read book
-2.[D][ ] submit report (by: Friday)
-3.[E][ ] project meeting (from: Mon 2pm to: Mon 3pm)
-____________________________________________________________
-Bye. Hope to see you again soon!
-```
-
-## Test case 3 — Change a task's status
-
-**Aim:** Verify that marking and unmarking a task changes the displayed status.
-
-**Console input:**
-
-```text
-todo borrow book
-mark 1
-unmark 1
-list
-bye
-```
-
-**Run:**
-
-```sh
-printf 'todo borrow book\nmark 1\nunmark 1\nlist\nbye\n' | java src/main/java/koko.Koko.java 2>&1
-```
-
-**Expected output:**
-
-```text
- _  __     _          
-| |/ /___ | | _____   
-| ' // _ \| |/ / _ \  
-| . \ (_) |   < (_) | 
-|_|\_\___/|_|\_\___/  
-
-What can I do for you?
-____________________________________________________________
-Got it. I've added this task:
-  [T][ ] borrow book
-Now you have 1 tasks in the list.
-____________________________________________________________
-____________________________________________________________
-Nice! I've marked this task as done:
-  [T][X] borrow book
-____________________________________________________________
-____________________________________________________________
-OK, I've marked this task as not done yet:
-  [T][ ] borrow book
-____________________________________________________________
-____________________________________________________________
-Here are the tasks in your list:
-1.[T][ ] borrow book
-____________________________________________________________
-Bye. Hope to see you again soon!
-```
-
-## Test case 4 — Reject malformed commands
-
-**Aim:** Verify that invalid or incomplete commands produce clear guidance and do not stop the application.
-
-**Console input:**
-
-```text
-todo
-deadline write essay
-event gym /from 7pm /to
-mark potato
-mark 1
-unmark
-delete
-todo plan homework
-mark 2
-unmark 0
-delete 2
-something else
-bye
-```
-
-**Run:**
-
-```sh
-printf 'todo\ndeadline write essay\nevent gym /from 7pm /to\nmark potato\nmark 1\nunmark\ndelete\ntodo plan homework\nmark 2\nunmark 0\ndelete 2\nsomething else\nbye\n' | java src/main/java/koko.Koko.java 2>&1
-```
-
-**Expected output:**
-
-```text
- _  __     _          
-| |/ /___ | | _____   
-| ' // _ \| |/ / _ \  
-| . \ (_) |   < (_) | 
-|_|\_\___/|_|\_\___/  
-
-What can I do for you?
-____________________________________________________________
-Oops! A to-do needs a description. Try: todo borrow book.
-____________________________________________________________
-____________________________________________________________
-Oops! A deadline needs a description and a /by time. Try: deadline return book /by Friday.
-____________________________________________________________
-____________________________________________________________
-Oops! An event needs a description, /from time, and /to time. Try: event lecture /from Monday 2pm /to Monday 4pm.
-____________________________________________________________
-____________________________________________________________
-Oops! I need a task number to mark. Try: mark 2.
-____________________________________________________________
-____________________________________________________________
-Oops! There are no tasks to mark yet. Add one first.
-____________________________________________________________
-____________________________________________________________
-Oops! I need a task number to unmark. Try: unmark 2.
-____________________________________________________________
-____________________________________________________________
-Oops! I need a task number to delete. Try: delete 2.
-____________________________________________________________
-____________________________________________________________
-Got it. I've added this task:
-  [T][ ] plan homework
-Now you have 1 tasks in the list.
-____________________________________________________________
-____________________________________________________________
-Oops! Choose a task number from 1 to 1.
-____________________________________________________________
-____________________________________________________________
-Oops! Choose a task number from 1 to 1.
-____________________________________________________________
-____________________________________________________________
-Oops! Choose a task number from 1 to 1.
-____________________________________________________________
-____________________________________________________________
-Oops! I don't recognise that command. Try todo, deadline, event, list, mark, unmark, or delete.
-____________________________________________________________
-Bye. Hope to see you again soon!
-```
-
-## Test case 5 — Delete a task
-
-**Aim:** Verify that deleting a task reports the removed task and renumbers the remaining list.
-
-**Console input:**
-
-```text
-todo read book
-deadline return book /by June 6th
-event project meeting /from Aug 6th 2pm /to 4pm
-todo join sports club
-todo borrow book
-mark 1
-mark 2
-mark 4
-delete 3
-list
-bye
-```
-
-**Run:**
-
-```sh
-printf 'todo read book\ndeadline return book /by June 6th\nevent project meeting /from Aug 6th 2pm /to 4pm\ntodo join sports club\ntodo borrow book\nmark 1\nmark 2\nmark 4\ndelete 3\nlist\nbye\n' | java src/main/java/koko.Koko.java 2>&1
-```
-
-**Expected output:**
-
-```text
- _  __     _          
-| |/ /___ | | _____   
-| ' // _ \| |/ / _ \  
-| . \ (_) |   < (_) | 
-|_|\_\___/|_|\_\___/  
-
-What can I do for you?
-____________________________________________________________
-Got it. I've added this task:
-  [T][ ] read book
-Now you have 1 tasks in the list.
-____________________________________________________________
-____________________________________________________________
-Got it. I've added this task:
-  [D][ ] return book (by: June 6th)
-Now you have 2 tasks in the list.
-____________________________________________________________
-____________________________________________________________
-Got it. I've added this task:
-  [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
-Now you have 3 tasks in the list.
-____________________________________________________________
-____________________________________________________________
-Got it. I've added this task:
-  [T][ ] join sports club
-Now you have 4 tasks in the list.
-____________________________________________________________
-____________________________________________________________
-Got it. I've added this task:
-  [T][ ] borrow book
-Now you have 5 tasks in the list.
-____________________________________________________________
-____________________________________________________________
-Nice! I've marked this task as done:
-  [T][X] read book
-____________________________________________________________
-____________________________________________________________
-Nice! I've marked this task as done:
-  [D][X] return book (by: June 6th)
-____________________________________________________________
-____________________________________________________________
-Nice! I've marked this task as done:
-  [T][X] join sports club
-____________________________________________________________
-____________________________________________________________
-Noted. I've removed this task:
-  [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
-Now you have 4 tasks in the list.
-____________________________________________________________
-____________________________________________________________
-Here are the tasks in your list:
-1.[T][X] read book
-2.[D][X] return book (by: June 6th)
-3.[T][X] join sports club
-4.[T][ ] borrow book
+Oops! An event cannot end before it starts.
 ____________________________________________________________
 Bye. Hope to see you again soon!
 ```

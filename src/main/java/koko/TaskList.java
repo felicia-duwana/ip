@@ -59,6 +59,18 @@ public class TaskList {
     }
 
     /**
+     * Replaces the task at the given zero-based index.
+     *
+     * @param index the index of the task to replace
+     * @param task the replacement task
+     */
+    public void set(int index, Task task) {
+        assert isValidIndex(index) : "A task index must refer to an existing task.";
+        assert task != null : "A task list cannot contain null tasks.";
+        tasks.set(index, task);
+    }
+
+    /**
      * Returns the number of tasks in the list.
      *
      * @return the number of tasks
