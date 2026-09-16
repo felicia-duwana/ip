@@ -147,19 +147,40 @@ public class Koko {
      * @return koko.Koko's response text
      */
     public String getResponse(String input) {
+        return getGuiResponse(input).text();
+    }
+
+    /**
+     * Processes one line of user input and returns a response with its display type.
+     *
+     * @param input the user's input line
+     * @return Koko's response and whether it describes an invalid command
+     */
+    public GuiResponse getGuiResponse(String input) {
         try {
             if (Parser.isBye(input)) {
-                return "Bye. Hope to see you again soon!";
+                return new GuiResponse("Bye. Hope to see you again soon!", false);
             }
 
             if (Parser.isList(input)) {
-                return formatTaskList(tasks.getTasks(), "Here are the tasks in your list:");
+                return new GuiResponse(
+                        formatTaskList(tasks.getTasks(), "Here are the tasks in your list:"),
+                        false);
             }
 
-            return getCommandResponse(input);
+            return new GuiResponse(getCommandResponse(input), false);
         } catch (KokoException exception) {
-            return exception.getMessage();
+            return new GuiResponse(exception.getMessage(), true);
         }
+    }
+
+    /**
+     * A GUI response and whether it should be displayed as an error.
+     *
+     * @param text the response shown to the user
+     * @param isError whether the response was caused by invalid user input
+     */
+    public record GuiResponse(String text, boolean isError) {
     }
 
     /**

@@ -1,5 +1,6 @@
 package koko;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -21,6 +22,14 @@ public class MainWindow {
 
     private Koko koko;
 
+    /**
+     * Keeps the newest chat message visible after the dialog container grows.
+     */
+    @FXML
+    private void initialize() {
+        dialogContainer.heightProperty().addListener((observable, oldHeight, newHeight) -> scrollToLatestMessage());
+    }
+
     public void setKoko(Koko koko) {
         this.koko = koko;
 
@@ -41,15 +50,22 @@ public class MainWindow {
             return;
         }
 
-        String response = koko.getResponse(input);
+        Koko.GuiResponse response = koko.getGuiResponse(input);
 
-        dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input),
-                DialogBox.getKokoDialog(response)
-        );
+        dialogContainer.getChildren().add(DialogBox.getUserDialog(input));
+        dialogContainer.getChildren().add(response.isError()
+                ? DialogBox.getErrorDialog(response.text())
+                : DialogBox.getKokoDialog(response.text()));
 
         userInput.clear();
-        scrollPane.setVvalue(1.0);
+        scrollToLatestMessage();
         userInput.requestFocus();
+    }
+
+    /**
+     * Scrolls after JavaFX has finished laying out a newly added message.
+     */
+    private void scrollToLatestMessage() {
+        Platform.runLater(() -> scrollPane.setVvalue(1.0));
     }
 }
