@@ -33,8 +33,8 @@ repo_root=$(pwd); case_dir=$(mktemp -d); (cd "$case_dir" && printf 'bye\n' | jav
 | . \ (_) |   < (_) | 
 |_|\_\___/|_|\_\___/  
 
-What can I do for you?
-Bye. Hope to see you again soon!
+Chirp! I'm Koko the Taskbird. What shall we get flying today?
+Fly high! Koko will keep the nest cozy. See you soon!
 ```
 
 ## Test case 2 — Partially update every task type
@@ -70,45 +70,45 @@ repo_root=$(pwd); case_dir=$(mktemp -d); (cd "$case_dir" && printf 'event projec
 | . \ (_) |   < (_) | 
 |_|\_\___/|_|\_\___/  
 
-What can I do for you?
+Chirp! I'm Koko the Taskbird. What shall we get flying today?
 ____________________________________________________________
-Got it. I've added this task:
+Chirp-chirp! I've tucked this task into your nest:
   [E][ ] project meeting (from: Sept 20 2026, 2:00 pm to: Sept 20 2026, 4:00 pm)
-Now you have 1 tasks in the list.
+Now you have 1 tasks in the nest.
 ____________________________________________________________
 ____________________________________________________________
-Nice! I've marked this task as done:
+Wing-tastic! This task is now done:
   [E][X] project meeting (from: Sept 20 2026, 2:00 pm to: Sept 20 2026, 4:00 pm)
 ____________________________________________________________
 ____________________________________________________________
-Updated this task:
+Freshly fluffed! I've updated this task:
   [E][X] project meeting (from: Sept 20 2026, 2:00 pm to: Sept 20 2026, 6:00 pm)
 ____________________________________________________________
 ____________________________________________________________
-Got it. I've added this task:
+Chirp-chirp! I've tucked this task into your nest:
   [D][ ] submit draft (by: Sept 18 2026, 11:59 pm)
-Now you have 2 tasks in the list.
+Now you have 2 tasks in the nest.
 ____________________________________________________________
 ____________________________________________________________
-Updated this task:
+Freshly fluffed! I've updated this task:
   [D][ ] submit final draft (by: Sept 19 2026, 12:00 pm)
 ____________________________________________________________
 ____________________________________________________________
-Got it. I've added this task:
+Chirp-chirp! I've tucked this task into your nest:
   [T][ ] read chapter 2
-Now you have 3 tasks in the list.
+Now you have 3 tasks in the nest.
 ____________________________________________________________
 ____________________________________________________________
-Updated this task:
+Freshly fluffed! I've updated this task:
   [T][ ] read chapter 3
 ____________________________________________________________
 ____________________________________________________________
-Here are the tasks in your list:
+Nest check! Here are the tasks in your nest:
 1.[E][X] project meeting (from: Sept 20 2026, 2:00 pm to: Sept 20 2026, 6:00 pm)
 2.[D][ ] submit final draft (by: Sept 19 2026, 12:00 pm)
 3.[T][ ] read chapter 3
 ____________________________________________________________
-Bye. Hope to see you again soon!
+Fly high! Koko will keep the nest cozy. See you soon!
 ```
 
 ## Test case 3 — Reject invalid updates
@@ -142,28 +142,28 @@ repo_root=$(pwd); case_dir=$(mktemp -d); (cd "$case_dir" && printf 'todo read bo
 | . \ (_) |   < (_) | 
 |_|\_\___/|_|\_\___/  
 
-What can I do for you?
+Chirp! I'm Koko the Taskbird. What shall we get flying today?
 ____________________________________________________________
-Got it. I've added this task:
+Chirp-chirp! I've tucked this task into your nest:
   [T][ ] read book
-Now you have 1 tasks in the list.
+Now you have 1 tasks in the nest.
 ____________________________________________________________
 ____________________________________________________________
-Oops! That field cannot be updated for this task.
+Squawk! That field cannot be updated for this task.
 ____________________________________________________________
 ____________________________________________________________
-Oops! I need at least one field to update. Try: update 2 /desc new description.
+Squawk! I need at least one field to update. Try: update 2 /desc new description.
 ____________________________________________________________
 ____________________________________________________________
-Oops! Each update field can be specified only once.
+Squawk! Each update field can be specified only once.
 ____________________________________________________________
 ____________________________________________________________
-Got it. I've added this task:
+Chirp-chirp! I've tucked this task into your nest:
   [E][ ] meeting (from: Sept 20 2026, 2:00 pm to: Sept 20 2026, 4:00 pm)
-Now you have 2 tasks in the list.
+Now you have 2 tasks in the nest.
 ____________________________________________________________
 ____________________________________________________________
-Oops! An event cannot end before it starts.
+Squawk! An event cannot end before it starts.
 ____________________________________________________________
-Bye. Hope to see you again soon!
+Fly high! Koko will keep the nest cozy. See you soon!
 ```

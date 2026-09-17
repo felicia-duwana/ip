@@ -27,7 +27,7 @@ public class Ui {
                 + "|_|\\_\\___/|_|\\_\\___/  \n";
 
         System.out.println(banner);
-        System.out.println("What can I do for you?");
+        System.out.println("Chirp! I'm Koko the Taskbird. What shall we get flying today?");
     }
 
     /**
@@ -47,7 +47,7 @@ public class Ui {
      * Displays the goodbye message.
      */
     public void showBye() {
-        System.out.println("Bye. Hope to see you again soon!");
+        System.out.println("Fly high! Koko will keep the nest cozy. See you soon!");
     }
 
     /**
@@ -57,7 +57,7 @@ public class Ui {
      */
     public void showTasks(TaskList tasks) {
         showDivider();
-        System.out.println("Here are the tasks in your list:");
+        System.out.println("Nest check! Here are the tasks in your nest:");
 
         for (int index = 0; index < tasks.size(); index++) {
             System.out.println((index + 1) + "." + tasks.get(index));
@@ -73,7 +73,7 @@ public class Ui {
      */
     public void showMarkDone(Task task) {
         showDivider();
-        System.out.println("Nice! I've marked this task as done:");
+        System.out.println("Wing-tastic! This task is now done:");
         System.out.println("  " + task);
         showDivider();
     }
@@ -85,7 +85,7 @@ public class Ui {
      */
     public void showMarkNotDone(Task task) {
         showDivider();
-        System.out.println("OK, I've marked this task as not done yet:");
+        System.out.println("No flap—this task is back in flight:");
         System.out.println("  " + task);
         showDivider();
     }
@@ -98,9 +98,9 @@ public class Ui {
      */
     public void showDeletedTask(Task task, int remainingTasks) {
         showDivider();
-        System.out.println("Noted. I've removed this task:");
+        System.out.println("Poof! I've sent this task flying from the nest:");
         System.out.println("  " + task);
-        System.out.println("Now you have " + remainingTasks + " tasks in the list.");
+        System.out.println("Now you have " + remainingTasks + " tasks in the nest.");
         showDivider();
     }
 
@@ -112,9 +112,9 @@ public class Ui {
      */
     public void showAddedTask(Task task, int numberOfTasks) {
         showDivider();
-        System.out.println("Got it. I've added this task:");
+        System.out.println("Chirp-chirp! I've tucked this task into your nest:");
         System.out.println("  " + task);
-        System.out.println("Now you have " + numberOfTasks + " tasks in the list.");
+        System.out.println("Now you have " + numberOfTasks + " tasks in the nest.");
         showDivider();
     }
 
@@ -125,7 +125,7 @@ public class Ui {
      */
     public void showUpdatedTask(Task task) {
         showDivider();
-        System.out.println("Updated this task:");
+        System.out.println("Freshly fluffed! I've updated this task:");
         System.out.println("  " + task);
         showDivider();
     }
@@ -137,7 +137,7 @@ public class Ui {
      */
     public void showError(String message) {
         showDivider();
-        System.out.println("Oops! " + message);
+        System.out.println("Squawk! " + message);
         showDivider();
     }
 
@@ -148,7 +148,7 @@ public class Ui {
      */
     public void showMatchingTasks(List<Task> tasks) {
         showDivider();
-        System.out.println("Here are the matching tasks in your list:");
+        System.out.println("Nest check! Here are the matching tasks in your nest:");
 
         for (int index = 0; index < tasks.size(); index++) {
             System.out.println((index + 1) + "." + tasks.get(index));

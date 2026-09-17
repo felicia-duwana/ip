@@ -30,7 +30,7 @@ public class KokoTest {
 
         String expectedTask = "[E][X] project meeting (from: Sept 20 2026, 2:00 pm "
                 + "to: Sept 20 2026, 6:00 pm)";
-        assertEquals("Updated this task:\n  " + expectedTask, response);
+        assertEquals("Freshly fluffed! I've updated this task:\n  " + expectedTask, response);
         assertTrue(new Koko(storage).getResponse("list").contains(expectedTask));
     }
 

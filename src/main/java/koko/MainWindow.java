@@ -35,7 +35,7 @@ public class MainWindow {
 
         dialogContainer.getChildren().add(
                 DialogBox.getKokoDialog(
-                        "Hello! I'm Koko. What can I do for you?"
+                        "Chirp! I'm Koko the Taskbird. What shall we get flying today?"
                 )
         );
 

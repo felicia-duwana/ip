@@ -134,7 +134,7 @@ public class Koko {
         String keyword = command.substring("find".length()).trim();
         if (keyword.isEmpty()) {
             throw new KokoException(
-                    "I need a keyword to search for. Try: find book.");
+                    "Chirp a keyword so I can search. Try: find book.");
         }
         ui.showMatchingTasks(tasks.find(keyword));
     }
@@ -159,12 +159,12 @@ public class Koko {
     public GuiResponse getGuiResponse(String input) {
         try {
             if (Parser.isBye(input)) {
-                return new GuiResponse("Bye. Hope to see you again soon!", false);
+                return new GuiResponse("Fly high! Koko will keep the nest cozy. See you soon!", false);
             }
 
             if (Parser.isList(input)) {
                 return new GuiResponse(
-                        formatTaskList(tasks.getTasks(), "Here are the tasks in your list:"),
+                        formatTaskList(tasks.getTasks(), "Nest check! Here are the tasks in your nest:"),
                         false);
             }
 
@@ -223,7 +223,7 @@ public class Koko {
             return addTaskForGui(Parser.parseEvent(input));
         }
 
-        throw new KokoException("I don't recognise that command. "
+        throw new KokoException("That command flew past me. "
                 + "Try todo, deadline, event, list, mark, unmark, delete, or update.");
     }
 
@@ -238,12 +238,12 @@ public class Koko {
         String keyword = input.substring("find".length()).trim();
         if (keyword.isEmpty()) {
             throw new KokoException(
-                    "I need a keyword to search for. Try: find book.");
+                    "Chirp a keyword so I can search. Try: find book.");
         }
 
         return formatTaskList(
                 tasks.find(keyword),
-                "Here are the matching tasks in your list:");
+                "Nest check! Here are the matching tasks in your nest:");
     }
 
     /**
@@ -258,7 +258,7 @@ public class Koko {
         Task task = tasks.get(taskIndex);
         task.markAsDone();
         storage.save(tasks.getTasks());
-        return "Nice! I've marked this task as done:\n  " + task;
+        return "Wing-tastic! This task is now done:\n  " + task;
     }
 
     /**
@@ -273,7 +273,7 @@ public class Koko {
         Task task = tasks.get(taskIndex);
         task.markAsNotDone();
         storage.save(tasks.getTasks());
-        return "OK, I've marked this task as not done yet:\n  " + task;
+        return "No flap—this task is back in flight:\n  " + task;
     }
 
     /**
@@ -287,8 +287,8 @@ public class Koko {
         int taskIndex = Parser.getTaskIndex(input, "delete", tasks.size());
         Task removedTask = tasks.remove(taskIndex);
         storage.save(tasks.getTasks());
-        return "Noted. I've removed this task:\n  " + removedTask
-                + "\nNow you have " + tasks.size() + " tasks in the list.";
+        return "Poof! I've sent this task flying from the nest:\n  " + removedTask
+                + "\nNow you have " + tasks.size() + " tasks in the nest.";
     }
 
     /**
@@ -303,7 +303,7 @@ public class Koko {
         Task updatedTask = createUpdatedTask(tasks.get(request.getTaskIndex()), request);
         tasks.set(request.getTaskIndex(), updatedTask);
         storage.save(tasks.getTasks());
-        return "Updated this task:\n  " + updatedTask;
+        return "Freshly fluffed! I've updated this task:\n  " + updatedTask;
     }
 
     /**
@@ -384,8 +384,8 @@ public class Koko {
     private String addTaskForGui(Task task) throws KokoException {
         tasks.add(task);
         storage.save(tasks.getTasks());
-        return "Got it. I've added this task:\n  " + task
-                + "\nNow you have " + tasks.size() + " tasks in the list.";
+        return "Chirp-chirp! I've tucked this task into your nest:\n  " + task
+                + "\nNow you have " + tasks.size() + " tasks in the nest.";
     }
 
     private String formatTaskList(List<Task> taskList, String header) {

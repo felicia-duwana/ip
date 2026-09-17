@@ -58,7 +58,7 @@ public class DialogBox extends HBox {
     public static DialogBox getUserDialog(String text) {
         DialogBox dialogBox = new DialogBox(
                 text,
-                "-fx-background-color: #2563eb;"
+                "-fx-background-color: #f97316;"
                         + "-fx-text-fill: white;"
                         + "-fx-font-size: 13px;"
                         + "-fx-padding: 8 12 8 12;"
@@ -79,12 +79,12 @@ public class DialogBox extends HBox {
     public static DialogBox getKokoDialog(String text) {
         DialogBox dialogBox = new DialogBox(
                 text,
-                "-fx-background-color: #f1f5f9;"
-                        + "-fx-text-fill: #1e293b;"
+                "-fx-background-color: #eff8ff;"
+                        + "-fx-text-fill: #164e63;"
                         + "-fx-font-size: 13px;"
                         + "-fx-padding: 9 12 9 12;"
                         + "-fx-background-radius: 3 14 14 14;"
-                        + "-fx-border-color: #dbe3ee;"
+                        + "-fx-border-color: #bae6fd;"
                         + "-fx-border-radius: 3 14 14 14;",
                 KOKO_MESSAGE_WIDTH_RATIO,
                 true);
@@ -101,14 +101,14 @@ public class DialogBox extends HBox {
      */
     public static DialogBox getErrorDialog(String text) {
         DialogBox dialogBox = new DialogBox(
-                "Command needs attention\n" + text,
-                "-fx-background-color: #fff1f2;"
-                        + "-fx-text-fill: #9f1239;"
+                "Koko squawks: command needs attention\n" + text,
+                "-fx-background-color: #fef2f2;"
+                        + "-fx-text-fill: #991b1b;"
                         + "-fx-font-size: 13px;"
                         + "-fx-font-weight: bold;"
                         + "-fx-padding: 9 12 9 12;"
                         + "-fx-background-radius: 3 14 14 14;"
-                        + "-fx-border-color: #fda4af;"
+                        + "-fx-border-color: #fb7185;"
                         + "-fx-border-width: 0 0 0 4;"
                         + "-fx-border-radius: 3 14 14 14;",
                 KOKO_MESSAGE_WIDTH_RATIO,

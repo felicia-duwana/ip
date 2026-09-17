@@ -19,11 +19,11 @@
           AnchorPane.topAnchor="0"
           AnchorPane.leftAnchor="0"
           AnchorPane.rightAnchor="0"
-          style="-fx-padding: 11 16 9 16; -fx-background-color: #0f172a;">
-        <Label text="Koko"
+          style="-fx-padding: 11 16 9 16; -fx-background-color: #0b4f6c;">
+        <Label text="Koko the Taskbird"
                style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
-        <Label text="Task assistant"
-               style="-fx-text-fill: #cbd5e1; -fx-font-size: 11px;" />
+        <Label text="Your cheerful task co-pilot"
+               style="-fx-text-fill: #dbeafe; -fx-font-size: 11px;" />
     </VBox>
 
     <ScrollPane fx:id="scrollPane"
@@ -48,14 +48,14 @@
         <TextField fx:id="userInput"
                    HBox.hgrow="ALWAYS"
                    maxWidth="1.7976931348623157E308"
-                   promptText="Try: todo read chapter 1"
+                   promptText="Chirp a task: todo read chapter 1"
                    onAction="#handleUserInput"
                    style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #cbd5e1; -fx-padding: 8 10 8 10;" />
 
         <Button fx:id="sendButton"
-                text="Send"
+                text="Fly!"
                 onAction="#handleUserInput"
-                style="-fx-background-color: #2563eb; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 15 8 15;" />
+                style="-fx-background-color: #f97316; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 15 8 15;" />
     </HBox>
 
 </AnchorPane>
