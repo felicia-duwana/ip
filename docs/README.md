@@ -1,59 +1,96 @@
-# koko.Koko User Guide
+# Koko the Taskbird User Guide
 
-koko.Koko is a command-line task manager. Tasks are kept while the program is running.
+Koko the Taskbird is a cheerful task manager that helps you organise to-dos, deadlines, and events.
+Koko remembers your saved tasks when you open the app again.
 
-## Adding to-dos
+![Koko the Taskbird user interface](Ui.png)
 
-Use `todo` for a task without a date or time.
+## Quick start
 
-```
-todo borrow book
-```
+1. Open Koko's GUI by running `koko.Launcher` or Gradle's `run` task.
+2. Type a command in the box at the bottom of the window and press <kbd>Enter</kbd> or select **Fly!**.
+3. Use `list` to see every task in your nest.
 
-koko.Koko adds it as `[T][ ] borrow book`.
+All commands are case-sensitive. Task numbers refer to the number shown by `list`.
 
-## Adding deadlines
+## Features
 
-Use `deadline` followed by the task description and `/by` followed by any due-date text. koko.Koko stores the date text exactly as entered; it does not need to be a real date.
+### Add a to-do: `todo`
 
-```
-deadline return book /by Sunday
-deadline do homework /by no idea :-p
-```
+Adds a task that does not have a date or time.
 
-koko.Koko displays a deadline with a `[D]` marker, for example: `[D][ ] return book (by: Sunday)`.
-
-## Adding events
-
-Use `event` followed by the event description, `/from` and a start time, then `/to` and an end time. koko.Koko keeps both time values as text.
-
-```
-event project meeting /from Mon 2pm /to 4pm
+```text
+todo Review lecture notes for software architecture
 ```
 
-koko.Koko displays an event with an `[E]` marker, for example: `[E][ ] project meeting (from: Mon 2pm to: 4pm)`.
+### Add a deadline: `deadline`
 
-## Listing tasks
+Adds a task that must be completed by a particular date and time.
 
-Use `list` to show every task. `[ ]` means not done, while `[X]` means done.
-
+```text
+deadline Submit project proposal /by 2026-09-25 2359
 ```
+
+### Add an event: `event`
+
+Adds an event with a start and end date and time.
+
+```text
+event Team sprint planning /from 2026-09-21 1400 /to 2026-09-21 1530
+```
+
+For deadlines and events, enter dates in the `yyyy-MM-dd HHmm` format. For example,
+`2026-09-21 1400` means 21 September 2026 at 2:00 pm.
+
+### List tasks: `list`
+
+Shows every task in your nest. `[ ]` means the task is incomplete, while `[X]` means it is done.
+
+```text
 list
 ```
 
-## Updating task status
+### Find tasks: `find`
 
-Use a task's number from the `list` output with `mark` or `unmark`.
+Shows tasks whose descriptions contain the keyword.
 
+```text
+find project
 ```
+
+### Mark or unmark a task: `mark`, `unmark`
+
+Marks a task as complete or returns it to incomplete status.
+
+```text
 mark 2
 unmark 2
 ```
 
-## Exiting koko.Koko
+### Update a task: `update`
 
-Use `bye` to close the program.
+Changes only the fields you provide. Use `/desc` for a description, `/by` for a deadline,
+and `/from` and `/to` for an event. A to-do supports `/desc`; a deadline supports `/desc`
+and `/by`; an event supports `/desc`, `/from`, and `/to`.
 
+```text
+update 1 /desc Review the architecture lecture
+update 2 /by 2026-09-26 1800
+update 3 /to 2026-09-21 1600
 ```
+
+### Delete a task: `delete`
+
+Removes a task from your nest.
+
+```text
+delete 3
+```
+
+### Say goodbye: `bye`
+
+Ends the console session. In the GUI, Koko replies with a farewell message.
+
+```text
 bye
 ```
