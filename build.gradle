@@ -26,6 +26,11 @@ dependencies {
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${jUnitVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
+
+    // The JavaFX plugin adds native libraries for the platform performing the build.
+    // Include the Windows and Linux libraries so shadowJar produces a cross-platform JAR.
+    runtimeOnly 'org.openjfx:javafx-graphics:17.0.7:win'
+    runtimeOnly 'org.openjfx:javafx-graphics:17.0.7:linux'
 }
 
 javafx {
@@ -57,7 +62,7 @@ jar {
 }
 
 shadowJar {
-    archiveFileName = 'duke.jar'
+    archiveFileName = 'Koko.jar'
 }
 
 run {
